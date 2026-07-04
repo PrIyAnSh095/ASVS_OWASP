@@ -1,0 +1,9 @@
+﻿# Secure lab - correct Content-Length
+curl -i http://localhost:5000/generate -X POST -H "Content-Type: application/json" -d '{"type":"normal"}'
+
+# Vulnerable lab - incorrect Content-Length
+curl -i http://localhost:5001/generate -X POST -H "Content-Type: application/json" -d '{"type":"normal"}'
+
+# Compare response bodies
+curl -s http://localhost:5000/generate -X POST -H "Content-Type: application/json" -d '{"type":"json"}' | wc -c
+curl -s http://localhost:5001/generate -X POST -H "Content-Type: application/json" -d '{"type":"json"}' | wc -c

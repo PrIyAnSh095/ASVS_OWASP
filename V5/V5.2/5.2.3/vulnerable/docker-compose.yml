@@ -1,0 +1,6 @@
+version: '3.8'
+services:
+  vulnerable-zip-523:
+    build: .
+    ports:
+      - "5000:5000"

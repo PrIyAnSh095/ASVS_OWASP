@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Secure Implementation: Strict Storage Limits</h2>
+    
+    <div class="box">
+        <form method="GET" action="/">
+            <label>Current User:</label>
+            <input type="text" name="username" value="{{ username }}" required>
+            <button type="submit">Switch User</button>
+        </form>
+    </div>
+    
+    <div class="box quota">
+        <h3>User Quota ({{ username }})</h3>
+        <p><strong>Files Uploaded:</strong> {{ quota.file_count }} / {{ limits.max_files }}</p>
+        <p><strong>Storage Used:</strong> {{ (quota.storage_used / 1024)|round(2) }} KB / {{ (limits.max_storage / 1024)|round(2) }} KB</p>
+    </div>
+
+    <div class="box">
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="file" name="file" required>
+            <button type="submit">Upload File</button>
+        </form>
+        
+        <br>
+        {% if message %}
+            <div class="{% if success %}success{% else %}error{% endif %}">
+                Result: {{ message }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

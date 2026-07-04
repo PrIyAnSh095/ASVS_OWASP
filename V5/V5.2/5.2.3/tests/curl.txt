@@ -1,0 +1,2 @@
+# Run generate_tests.py first to create the zip files!
+curl -F "file=@simulated-zip-bomb.zip" http://localhost:5000/upload

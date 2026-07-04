@@ -1,0 +1,8 @@
+# cURL does not natively support WebSockets easily, but you can see the upgrade response using headers.
+
+# Testing Vulnerable App (HTTP -> WS Upgrade)
+curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" http://localhost:5000/chat
+
+# Testing Secure App (HTTPS -> WSS Upgrade)
+# Note: --insecure is needed for the self-signed cert in the lab
+curl -i -N --insecure -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" https://localhost:5000/chat

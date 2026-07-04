@@ -1,0 +1,225 @@
+/* Premium styling for ASVS 5.4.3 Upload Antivirus Lab */
+:root {
+    --bg-color: #0b0f19;
+    --card-bg: #151d30;
+    --text-color: #f3f4f6;
+    --text-muted: #9ca3af;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --border-color: #1f2937;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px 0;
+}
+
+.header h1 {
+    margin: 10px 0 0 0;
+    font-size: 24px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-secure {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.badge-vuln {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.content {
+    margin-top: 30px;
+    margin-bottom: 50px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 18px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.description {
+    color: var(--text-muted);
+}
+
+.indicator-box {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.status-pass {
+    color: var(--success-color);
+}
+
+.status-fail {
+    color: var(--danger-color);
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.alert-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.file-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.file-table th, .file-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.file-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background-color: var(--success-color);
+}
+
+.btn-primary:hover {
+    background-color: #059669;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+}
+
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: white;
+    border-radius: 4px;
+}
+
+.payload-suggestions {
+    margin-top: 20px;
+    font-size: 13px;
+    border-top: 1px dotted var(--border-color);
+    padding-top: 15px;
+}
+
+.payload-suggestions h3 {
+    margin-top: 0;
+    font-size: 14px;
+}
+
+.payload-suggestions ul {
+    padding-left: 20px;
+}
+
+.payload-suggestions code {
+    background-color: rgba(255,255,255,0.1);
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 12px;
+}

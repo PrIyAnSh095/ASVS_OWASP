@@ -1,0 +1,7 @@
+# Simulate CSWSH by spoofing the Origin header
+
+# Secure server will reject the request:
+curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Origin: http://evil.com" http://localhost:5000/socket.io/?EIO=4&transport=websocket
+
+# Vulnerable server will accept the request:
+curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Origin: http://evil.com" http://localhost:5000/socket.io/?EIO=4&transport=websocket

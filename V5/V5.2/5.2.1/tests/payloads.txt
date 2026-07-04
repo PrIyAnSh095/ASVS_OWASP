@@ -1,0 +1,10 @@
+# Payload Generation for DoS Testing (Linux/macOS)
+
+# Generate a 1MB file (Passes Secure App)
+dd if=/dev/zero of=payload_1mb.txt bs=1M count=1
+
+# Generate a 10MB file (Fails Secure App, Passes Vulnerable App)
+dd if=/dev/zero of=payload_10mb.txt bs=1M count=10
+
+# Generate a 300MB file (Will crash Vulnerable App due to 200MB Docker RAM limit)
+dd if=/dev/zero of=payload_300mb.txt bs=1M count=300

@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>{{ title }}</h2>
+<p>Download a file. Control 5.4.1 Content-Disposition Lab.</p>
+
+{% if files %}
+    <h3>Available Files</h3>
+    <ul>
+        {% for id, name in files.items() %}
+            <li>
+                {{ name }} 
+                {% if secure %}
+                    <a href="/download?id={{ id }}" class="btn-link">Download</a>
+                {% else %}
+                    <a href="/download?filename={{ name }}" class="btn-link">Download</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    
+    {% if not secure %}
+    <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border: 1px solid #ffeeba;">
+        <strong>Try Path Traversal:</strong>
+        <a href="/download?filename=../secret.txt" class="btn-link" style="background: #dc3545;">Download ../secret.txt</a>
+    </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

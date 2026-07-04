@@ -1,0 +1,6 @@
+POST / HTTP/1.1
+Host: localhost:5000
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 10078
+
+uri=/api/v1/resource&cookie=session=123456&auth=Bearer+<INSERT_10000_A_CHARACTERS_HERE>&custom_header=custom_data

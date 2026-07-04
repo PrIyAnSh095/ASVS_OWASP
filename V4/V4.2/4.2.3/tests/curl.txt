@@ -1,0 +1,222 @@
+# ASVS 4.2.3 curl Command Examples
+
+## Health Check
+
+curl -v http://localhost:8000/health
+curl -v http://localhost:8001/health
+
+## Valid Request (Both Should Accept)
+
+curl -v -H "Accept: application/json" http://localhost:8000/api/test
+curl -v -H "Accept: application/json" http://localhost:8001/api/test
+
+## Test Transfer-Encoding
+
+# Secure - should reject (400)
+curl -v --http2 -H "Transfer-Encoding: chunked" http://localhost:8000/api/test
+
+# Vulnerable - should accept (200)
+curl -v --http2 -H "Transfer-Encoding: chunked" http://localhost:8001/api/test
+
+## Test Connection
+
+# Secure - should reject (400)
+curl -v --http2 -H "Connection: close" http://localhost:8000/api/test
+
+# Vulnerable - should accept (200)
+curl -v --http2 -H "Connection: close" http://localhost:8001/api/test
+
+## Test Keep-Alive
+
+# Secure - should reject (400)
+curl -v --http2 -H "Keep-Alive: timeout=5, max=100" http://localhost:8000/api/test
+
+# Vulnerable - should accept (200)
+curl -v --http2 -H "Keep-Alive: timeout=5, max=100" http://localhost:8001/api/test
+
+## Test Upgrade
+
+# Secure - should reject (400)
+curl -v --http2 -H "Upgrade: h2c" http://localhost:8000/api/test
+
+# Vulnerable - should accept (200)
+curl -v --http2 -H "Upgrade: h2c" http://localhost:8001/api/test
+
+## Test Proxy-Connection
+
+# Secure - should reject (400)
+curl -v --http2 -H "Proxy-Connection: keep-alive" http://localhost:8000/api/test
+
+# Vulnerable - should accept (200)
+curl -v --http2 -H "Proxy-Connection: keep-alive" http://localhost:8001/api/test
+
+## Test Trailer
+
+# Secure - should reject (400)
+curl -v --http2 -H "Trailer: X-Custom-Trailer" http://localhost:8000/api/test
+
+# Vulnerable - should accept (200)
+curl -v --http2 -H "Trailer: X-Custom-Trailer" http://localhost:8001/api/test
+
+## Multiple Forbidden Headers
+
+# Secure - should reject all 3 (400)
+curl -v --http2 \
+  -H "Transfer-Encoding: chunked" \
+  -H "Connection: close" \
+  -H "Keep-Alive: timeout=5" \
+  http://localhost:8000/api/test
+
+# Vulnerable - should accept all 3 (200)
+curl -v --http2 \
+  -H "Transfer-Encoding: chunked" \
+  -H "Connection: close" \
+  -H "Keep-Alive: timeout=5" \
+  http://localhost:8001/api/test
+
+## All Six Forbidden Headers
+
+# Secure - should reject all 6 (400)
+curl -v --http2 \
+  -H "Transfer-Encoding: chunked" \
+  -H "Connection: close" \
+  -H "Keep-Alive: timeout=5" \
+  -H "Upgrade: h2c" \
+  -H "Proxy-Connection: keep-alive" \
+  -H "Trailer: X-Signature" \
+  http://localhost:8000/api/test
+
+# Vulnerable - should accept all 6 (200)
+curl -v --http2 \
+  -H "Transfer-Encoding: chunked" \
+  -H "Connection: close" \
+  -H "Keep-Alive: timeout=5" \
+  -H "Upgrade: h2c" \
+  -H "Proxy-Connection: keep-alive" \
+  -H "Trailer: X-Signature" \
+  http://localhost:8001/api/test
+
+## POST with JSON Body
+
+# Secure - valid headers should pass (200)
+curl -v --http2 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"key": "value"}' \
+  http://localhost:8000/api/test
+
+# Secure - forbidden header should reject (400)
+curl -v --http2 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -H "Transfer-Encoding: chunked" \
+  -d '{"key": "value"}' \
+  http://localhost:8000/api/test
+
+## Validate Endpoint
+
+# Secure with forbidden header
+curl -v --http2 \
+  -X POST \
+  -H "Transfer-Encoding: chunked" \
+  http://localhost:8000/api/validate
+
+# Vulnerable with forbidden header
+curl -v --http2 \
+  -X POST \
+  -H "Transfer-Encoding: chunked" \
+  http://localhost:8001/api/validate
+
+## Info Endpoint
+
+# Get control information (same on both)
+curl -v http://localhost:8000/api/info | jq .
+
+curl -v http://localhost:8001/api/info | jq .
+
+## Protocol Query Parameter Testing
+
+# Simulate HTTP/2 with query parameter
+curl -v http://localhost:8000/api/test?protocol=http2
+curl -v -H "Transfer-Encoding: chunked" http://localhost:8000/api/test?protocol=http2
+
+# Simulate HTTP/1.1 behavior
+curl -v http://localhost:8000/api/test?protocol=http1
+
+## Batch Test Script
+
+#!/bin/bash
+
+# Test each forbidden header
+for header in "Transfer-Encoding: chunked" \
+              "Connection: close" \
+              "Keep-Alive: timeout=5" \
+              "Upgrade: h2c" \
+              "Proxy-Connection: keep-alive" \
+              "Trailer: X-Signature"
+do
+  echo "Testing: $header"
+  echo "=== SECURE (should be 400) ==="
+  curl -s -w "Status: %{http_code}\n" -H "$header" http://localhost:8000/api/test | head -1
+  
+  echo "=== VULNERABLE (should be 200) ==="
+  curl -s -w "Status: %{http_code}\n" -H "$header" http://localhost:8001/api/test | head -1
+  echo ""
+done
+
+## Pretty Print with jq
+
+# Format responses nicely
+curl -s -H "Transfer-Encoding: chunked" http://localhost:8000/api/test | jq .
+
+curl -s -H "Connection: close" http://localhost:8001/api/test | jq .
+
+## Performance Testing
+
+# Measure response time
+curl -w "Time: %{time_total}s\n" -o /dev/null -s http://localhost:8000/api/test
+
+curl -w "Time: %{time_total}s\n" -o /dev/null -s http://localhost:8001/api/test
+
+## Extract Status from Response
+
+curl -s http://localhost:8000/api/test | jq -r '.status'
+curl -s http://localhost:8001/api/test | jq -r '.status'
+
+## Test Case Matrix (Automated)
+
+#!/bin/bash
+
+SECURE="http://localhost:8000"
+VULNERABLE="http://localhost:8001"
+
+headers=(
+  "Transfer-Encoding:chunked"
+  "Connection:close"
+  "Keep-Alive:timeout=5"
+  "Upgrade:h2c"
+  "Proxy-Connection:keep-alive"
+  "Trailer:X-Signature"
+)
+
+printf "%-25s | %-10s | %-10s\n" "Header" "Secure (400)" "Vulnerable (200)"
+echo "=================================================="
+
+for header in "${headers[@]}"; do
+  secure_status=$(curl -s -w "%{http_code}" -o /dev/null -H "$header" "$SECURE/api/test")
+  vuln_status=$(curl -s -w "%{http_code}" -o /dev/null -H "$header" "$VULNERABLE/api/test")
+  
+  secure_pass="✓" && [ "$secure_status" != "400" ] && secure_pass="✗"
+  vuln_fail="✗" && [ "$vuln_status" == "200" ] && vuln_fail="✓"
+  
+  printf "%-25s | %s %3s | %s %3s\n" "$header" "$secure_pass" "$secure_status" "$vuln_fail" "$vuln_status"
+done
+
+## Notes
+
+# - Use --http2 flag for HTTP/2 support (requires curl with h2 support)
+# - Check curl version: curl --version | grep h2
+# - Some systems may need: apt-get install curl-http2 (or equivalent)
+# - Use -v flag for verbose output including headers
+# - Use jq for pretty JSON formatting: curl -s ... | jq .
+# - Use -w flag for timing and status code information

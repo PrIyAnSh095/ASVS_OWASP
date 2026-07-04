@@ -1,0 +1,149 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Secure WebSocket Implementation</h2>
+    <p>This implementation requires you to establish an authenticated HTTP session first, which is then used to securely obtain a dedicated WebSocket token.</p>
+    
+    <div style="border:1px solid #000; padding:10px; margin-bottom:10px;">
+        <h3>1. HTTPS Authentication (Session Establishment)</h3>
+        <input type="text" id="username" placeholder="Username" value="admin">
+        <input type="password" id="password" placeholder="Password" value="password">
+        <button id="loginBtn">Login (Set HTTP Cookie)</button>
+        <br>
+        <span id="loginStatus" style="font-weight:bold;">Not Logged In</span>
+    </div>
+
+    <div style="border:1px solid #000; padding:10px; margin-bottom:10px;">
+        <h3>2. Get WebSocket Token (Uses HTTP Session)</h3>
+        <button id="getTokenBtn" disabled>Get WS Token</button>
+        <br>
+        Issued Token: <input type="text" id="tokenInput" placeholder="Requires successful login" disabled style="width: 300px;">
+    </div>
+
+    <div style="border:1px solid #000; padding:10px;">
+        <h3>3. WebSocket Connection (Transition)</h3>
+        <button id="connectBtn" disabled>Connect to WebSocket</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+        <br><br>
+        <input type="text" id="messageBox" placeholder="Type a message..." disabled>
+        <button id="sendBtn" disabled>Send</button>
+        <br><br>
+        <strong>Connection Status:</strong> <span id="statusIndicator">Disconnected</span>
+        | <strong>PASS / FAIL:</strong> <span id="passFailIndicator">N/A</span>
+    </div>
+    
+    <h3>Message Log:</h3>
+    <pre id="logViewer" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:scroll;"></pre>
+
+    <script>
+        let socket;
+        const statusIndicator = document.getElementById('statusIndicator');
+        const passFailIndicator = document.getElementById('passFailIndicator');
+        const logViewer = document.getElementById('logViewer');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        const loginBtn = document.getElementById('loginBtn');
+        const loginStatus = document.getElementById('loginStatus');
+        
+        const getTokenBtn = document.getElementById('getTokenBtn');
+        const tokenInput = document.getElementById('tokenInput');
+
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const messageBox = document.getElementById('messageBox');
+        const sendBtn = document.getElementById('sendBtn');
+
+        function logMessage(msg) {
+            logViewer.textContent += msg + '\n';
+            logViewer.scrollTop = logViewer.scrollHeight;
+        }
+
+        loginBtn.addEventListener('click', async () => {
+            const formData = new FormData();
+            formData.append('username', usernameInput.value);
+            formData.append('password', passwordInput.value);
+
+            const res = await fetch('/login', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (res.ok) {
+                loginStatus.textContent = "Logged In as " + data.user;
+                loginStatus.style.color = "green";
+                getTokenBtn.disabled = false;
+                logMessage('Login successful via HTTP POST. Session Cookie is now set.');
+            } else {
+                loginStatus.textContent = "Login Failed";
+                loginStatus.style.color = "red";
+                logMessage('Login Failed.');
+            }
+        });
+
+        getTokenBtn.addEventListener('click', async () => {
+            const res = await fetch('/api/ws-token');
+            const data = await res.json();
+            if (res.ok) {
+                tokenInput.value = data.token;
+                connectBtn.disabled = false;
+                logMessage('Obtained WS Token securely using HTTP Session: ' + data.token);
+            } else {
+                logMessage('Failed to obtain token (Not authenticated?): ' + data.error);
+            }
+        });
+
+        connectBtn.addEventListener('click', () => {
+            const token = tokenInput.value;
+            logMessage('Attempting to connect with token: ' + token);
+            
+            socket = io({
+                auth: { token: token }
+            });
+
+            socket.on('connect', () => {
+                statusIndicator.textContent = 'Connected';
+                statusIndicator.style.color = 'green';
+                passFailIndicator.textContent = 'PASS';
+                passFailIndicator.style.color = 'green';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                messageBox.disabled = false;
+                sendBtn.disabled = false;
+                logMessage('Socket.IO connection established. Token verified.');
+            });
+
+            socket.on('message', (data) => {
+                logMessage('Server: ' + data);
+            });
+
+            socket.on('disconnect', () => {
+                statusIndicator.textContent = 'Disconnected';
+                statusIndicator.style.color = 'black';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                messageBox.disabled = true;
+                sendBtn.disabled = true;
+                logMessage('Disconnected from server.');
+            });
+
+            socket.on('connect_error', (err) => {
+                statusIndicator.textContent = 'Connection Error / Rejected';
+                statusIndicator.style.color = 'red';
+                passFailIndicator.textContent = 'FAIL / REJECTED';
+                passFailIndicator.style.color = 'red';
+                logMessage('Connection Error: ' + err.message);
+            });
+        });
+
+        disconnectBtn.addEventListener('click', () => {
+            if (socket) socket.disconnect();
+        });
+
+        sendBtn.addEventListener('click', () => {
+            const msg = messageBox.value;
+            if (msg && socket && socket.connected) {
+                socket.send(msg);
+                logMessage('You: ' + msg);
+                messageBox.value = '';
+            }
+        });
+    </script>
+{% endblock %}

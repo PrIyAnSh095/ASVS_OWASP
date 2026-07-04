@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>{{ title }}</h2>
+<p>Upload a ZIP archive. Control 5.2.5 Symlink Lab.</p>
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".zip" required>
+    <button type="submit">Upload</button>
+</form>
+{% if message %}
+    <div class="alert success">{{ message }}</div>
+{% endif %}
+{% if error %}
+    <div class="alert error">{{ error }}</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+POST /upload HTTP/1.1
+Host: localhost:5001
+Content-Type: multipart/form-data; boundary=---------------------------9876543210
+Content-Length: 210
+Connection: close
+
+-----------------------------9876543210
+Content-Disposition: form-data; name="file"; filename="eicar.txt"
+Content-Type: text/plain
+
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+-----------------------------9876543210--

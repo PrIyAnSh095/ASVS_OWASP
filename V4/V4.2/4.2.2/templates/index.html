@@ -1,0 +1,47 @@
+﻿{% extends "layout.html" %}
+
+{% block content %}
+  <section class="panel">
+    <h2>HTTP Response Content-Length Generator</h2>
+    <p>Generate responses and compare declared `Content-Length` with the actual body length to observe RFC 9112 compliance or violations.</p>
+  </section>
+
+  <section class="panel form-panel">
+    <div class="form-row">
+      <label for="response-type">Response Type</label>
+      <select id="response-type">
+        <option value="normal">Plain Text</option>
+        <option value="json">JSON</option>
+        <option value="html">HTML</option>
+        <option value="truncated">Truncated (vulnerable only)</option>
+      </select>
+    </div>
+    <div class="buttons-row">
+      <button id="generate-button" type="button">Generate Response</button>
+      <button id="analyze-button" type="button">Analyze</button>
+    </div>
+  </section>
+
+  <section class="result-panel">
+    <div class="result-row"><span>Response Type</span><span id="response-type-result">-</span></div>
+    <div class="result-row"><span>Declared Content-Length</span><span id="declared-length">-</span></div>
+    <div class="result-row"><span>Actual Body Length</span><span id="actual-length">-</span></div>
+    <div class="result-row"><span>Match</span><span id="match-result">-</span></div>
+    <div class="result-row"><span>Status</span><span id="status-result">-</span></div>
+  </section>
+
+  <section class="response-panel">
+    <h3>Response Body</h3>
+    <pre id="response-body">-</pre>
+  </section>
+
+  <section class="response-headers-panel">
+    <h3>Response Headers</h3>
+    <pre id="response-headers">-</pre>
+  </section>
+
+  <section class="instructions">
+    <h3>Explanation</h3>
+    <p id="explanation">Use the generator to inspect whether Content-Length matches the actual body. In the secure lab, it should always match. In the vulnerable lab, it is intentionally incorrect.</p>
+  </section>
+{% endblock %}

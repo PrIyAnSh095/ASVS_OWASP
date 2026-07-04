@@ -1,0 +1,1 @@
+Run the `generate_tests.py` script provided in this folder to generate the payloads locally!

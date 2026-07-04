@@ -1,0 +1,9 @@
+# Polyglot test (Requires hex editor or python script to generate)
+# A true polyglot has valid JPEG headers but contains trailing text.
+# The Magic Byte check will PASS this file!
+# The "Safe Rewriting" step (Pillow) is required to stop it by stripping the text.
+
+# To create a basic polyglot manually in Linux:
+# 1. Download a valid tiny image `valid.jpg`
+# 2. Append code: `echo '<?php echo "Test"; ?>' >> valid.jpg`
+# 3. Upload `valid.jpg` to the Secure App. It will pass Magic Bytes, but the rewritten image saved by the app will no longer contain the PHP code!

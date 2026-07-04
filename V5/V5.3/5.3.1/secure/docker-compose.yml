@@ -1,0 +1,8 @@
+version: '3'
+services:
+  secure-app:
+    build: 
+      context: ..
+      dockerfile: secure/Dockerfile
+    ports:
+      - "5000:5000"

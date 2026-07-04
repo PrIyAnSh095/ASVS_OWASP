@@ -1,0 +1,30 @@
+# Automated curl Test Script for ASVS 5.4.2
+
+This file serves as a reference command suite for automated tests using curl.
+
+## 1. Test Secure Server (Port 5000)
+
+### Run Secure Tests:
+```bash
+# Verify standard file returns
+curl -s -I "http://localhost:5000/download?source=sample.pdf&filename=normal.pdf" | grep -i "Content-Disposition"
+
+# Verify spaces and double quotes are correctly quoted/stripped
+curl -s -I "http://localhost:5000/download?source=sample.pdf&filename=report%202025%22.pdf" | grep -i "Content-Disposition"
+
+# Verify CRLF is stripped or encoded (No separate X-Test header should appear)
+curl -s -I "http://localhost:5000/download?source=sample.pdf&filename=test%0D%0AX-Test%3AInjected" | grep -i "X-Test"
+```
+
+---
+
+## 2. Test Vulnerable Server (Port 5001)
+
+### Run Vulnerable Tests:
+```bash
+# Verify standard file returns
+curl -s -I "http://localhost:5001/download?source=sample.pdf&filename=normal.pdf" | grep -i "Content-Disposition"
+
+# Verify CRLF injection is successful (X-Test header will appear in response)
+curl -s -I "http://localhost:5001/download?source=sample.pdf&filename=test%0D%0AX-Test%3AInjected" | grep -i "X-Test"
+```

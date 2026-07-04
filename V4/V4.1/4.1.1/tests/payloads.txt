@@ -1,0 +1,8 @@
+﻿# Payload references for ASVS 4.1.1
+# No malicious payloads are required for this lab.
+# Use these endpoints to inspect header-to-body mismatches.
+/
+/json
+/html
+/xml
+/text

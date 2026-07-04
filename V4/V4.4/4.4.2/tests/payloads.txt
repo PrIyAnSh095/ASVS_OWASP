@@ -1,0 +1,4 @@
+# Header manipulation payload
+Origin: http://evil.com
+Origin: null
+Origin: http://localhost.evil.com

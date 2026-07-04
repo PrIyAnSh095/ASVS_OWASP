@@ -1,0 +1,23 @@
+--- SECURE APPLICATION RESPONSE ---
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+...
+<div class="result fail">
+    <h3>Result: FAIL (HTTP 400)</h3>
+    <ul>
+        <li>Authorization header length exceeds maximum allowed (256 bytes).</li>
+    </ul>
+</div>
+...
+
+--- VULNERABLE APPLICATION RESPONSE ---
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+...
+<div class="result fail">
+    <h3>Result: FAIL (HTTP 500)</h3>
+    <p>Downstream request failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))</p>
+</div>
+...

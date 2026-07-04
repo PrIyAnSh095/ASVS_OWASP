@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Secure WebSocket Server</h2>
+    <p>This server strictly validates the <code>Origin</code> header during the initial HTTP handshake.</p>
+    <p>Only <code>http://localhost:5000</code> is allowed.</p>
+    
+    <div>
+        <label for="serverUrl">Server URL:</label>
+        <input type="text" id="serverUrl" value="http://localhost:5000" disabled>
+    </div>
+    <br>
+    <div>
+        <button id="connectBtn">Connect</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+    </div>
+    <br>
+    <div>
+        <input type="text" id="messageBox" placeholder="Type a message..." disabled>
+        <button id="sendBtn" disabled>Send</button>
+    </div>
+    <br>
+    <div>
+        <strong>Connection Status:</strong> <span id="statusIndicator">Disconnected</span>
+        | <strong>PASS / FAIL:</strong> <span id="passFailIndicator">N/A</span>
+    </div>
+    
+    <h3>Message Log:</h3>
+    <pre id="logViewer" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:scroll;"></pre>
+
+    <p><em>Note: Browsers automatically set the Origin header. You cannot modify it via JavaScript. To test Cross-Site WebSocket Hijacking (CSWSH), use Burp Suite to intercept the handshake and modify the <code>Origin</code> header to <code>http://evil.com</code>.</em></p>
+
+    <script>
+        let socket;
+        const statusIndicator = document.getElementById('statusIndicator');
+        const passFailIndicator = document.getElementById('passFailIndicator');
+        const logViewer = document.getElementById('logViewer');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const messageBox = document.getElementById('messageBox');
+        const sendBtn = document.getElementById('sendBtn');
+        const serverUrl = document.getElementById('serverUrl').value;
+
+        function logMessage(msg) {
+            logViewer.textContent += msg + '\n';
+            logViewer.scrollTop = logViewer.scrollHeight;
+        }
+
+        connectBtn.addEventListener('click', () => {
+            logMessage('Connecting to ' + serverUrl + '...');
+            socket = io(serverUrl);
+
+            socket.on('connect', () => {
+                statusIndicator.textContent = 'Connected';
+                statusIndicator.style.color = 'green';
+                passFailIndicator.textContent = 'PASS';
+                passFailIndicator.style.color = 'green';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                messageBox.disabled = false;
+                sendBtn.disabled = false;
+                logMessage('Socket.IO connection established.');
+            });
+
+            socket.on('message', (data) => {
+                logMessage('Server: ' + data);
+            });
+
+            socket.on('disconnect', () => {
+                statusIndicator.textContent = 'Disconnected';
+                statusIndicator.style.color = 'black';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                messageBox.disabled = true;
+                sendBtn.disabled = true;
+                logMessage('Disconnected from server.');
+            });
+
+            socket.on('connect_error', (err) => {
+                statusIndicator.textContent = 'Connection Error (Handshake rejected?)';
+                statusIndicator.style.color = 'red';
+                passFailIndicator.textContent = 'FAIL / REJECTED';
+                passFailIndicator.style.color = 'red';
+                logMessage('Connection Error: ' + err.message);
+            });
+        });
+
+        disconnectBtn.addEventListener('click', () => {
+            if (socket) socket.disconnect();
+        });
+
+        sendBtn.addEventListener('click', () => {
+            const msg = messageBox.value;
+            if (msg && socket && socket.connected) {
+                socket.send(msg);
+                logMessage('You: ' + msg);
+                messageBox.value = '';
+            }
+        });
+    </script>
+{% endblock %}

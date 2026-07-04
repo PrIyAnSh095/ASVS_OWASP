@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Secure Implementation: Strict File Size Limit</h2>
+    
+    <div class="box">
+        <p><strong>Maximum Allowed File Size:</strong> 1 MB</p>
+        <p>This server explicitly enforces a maximum content length at the transport layer. It will abort the connection immediately if the file exceeds the limit, preventing memory exhaustion.</p>
+        
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <button type="submit">Upload File</button>
+        </form>
+        
+        <br>
+        {% if message %}
+            <div class="{% if success %}success{% else %}error{% endif %}">
+                Result: {{ message }}
+            </div>
+            <br>
+            <div class="status">
+                <strong>PASS / FAIL:</strong>
+                {% if success %}
+                    <span style="color: green;">N/A (Normal file)</span>
+                {% else %}
+                    <span style="color: green;">PASS (File successfully blocked before processing)</span>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

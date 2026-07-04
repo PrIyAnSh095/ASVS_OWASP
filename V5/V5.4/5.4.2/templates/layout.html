@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASVS 5.4.2 - {{ mode }} File Download Lab</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <span class="badge {% if mode == 'Secure' %}badge-secure{% else %}badge-vuln{% endif %}">{{ mode }} Lab</span>
+            <h1>ASVS 5.4.2: File Download Sanitization</h1>
+        </div>
+    </header>
+    
+    <main class="container content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>OWASP ASVS-Labs — Practice Lab for Control 5.4.2 (Level 2)</p>
+        </div>
+    </footer>
+</body>
+</html>

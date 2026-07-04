@@ -1,0 +1,6 @@
+# 1. Test File Count Quota (Run this repeatedly)
+curl -F "username=testuser1" -F "file=@payloads.txt" http://localhost:5000/upload
+
+# 2. Test Storage Size Quota
+dd if=/dev/zero of=oversized.txt bs=1K count=150
+curl -F "username=testuser2" -F "file=@oversized.txt" http://localhost:5000/upload

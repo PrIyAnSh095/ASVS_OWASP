@@ -1,0 +1,93 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Secure WebSocket Chat (WSS)</h2>
+    <p>This application enforces TLS. It uses `wss://` for WebSocket communication.</p>
+    
+    <div>
+        <button id="connectBtn">Connect</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+    </div>
+    <br>
+    <div>
+        <input type="text" id="messageBox" placeholder="Type a message..." disabled>
+        <button id="sendBtn" disabled>Send</button>
+    </div>
+    <br>
+    <div>
+        <strong>Connection Status:</strong> <span id="statusIndicator">Disconnected</span>
+        | <strong>PASS / FAIL:</strong> <span id="passFailIndicator">N/A</span>
+    </div>
+    
+    <h3>Message Log:</h3>
+    <pre id="logViewer" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:scroll;"></pre>
+
+    <script>
+        let ws;
+        const statusIndicator = document.getElementById('statusIndicator');
+        const passFailIndicator = document.getElementById('passFailIndicator');
+        const logViewer = document.getElementById('logViewer');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const messageBox = document.getElementById('messageBox');
+        const sendBtn = document.getElementById('sendBtn');
+
+        function logMessage(msg) {
+            logViewer.textContent += msg + '\n';
+            logViewer.scrollTop = logViewer.scrollHeight;
+        }
+
+        connectBtn.addEventListener('click', () => {
+            const wsUrl = 'wss://' + window.location.host + '/chat';
+            
+            logMessage('Attempting to connect to: ' + wsUrl);
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                statusIndicator.textContent = 'Connected (Secure)';
+                statusIndicator.style.color = 'green';
+                passFailIndicator.textContent = 'PASS';
+                passFailIndicator.style.color = 'green';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                messageBox.disabled = false;
+                sendBtn.disabled = false;
+                logMessage('Connection established successfully over WSS.');
+            };
+
+            ws.onmessage = (event) => {
+                logMessage('Server: ' + event.data);
+            };
+
+            ws.onclose = () => {
+                statusIndicator.textContent = 'Disconnected';
+                statusIndicator.style.color = 'black';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                messageBox.disabled = true;
+                sendBtn.disabled = true;
+                logMessage('Connection closed.');
+            };
+
+            ws.onerror = (error) => {
+                logMessage('WebSocket Error. Ensure you are accessing the site via HTTPS.');
+                statusIndicator.textContent = 'Error';
+                statusIndicator.style.color = 'red';
+                passFailIndicator.textContent = 'FAIL';
+                passFailIndicator.style.color = 'red';
+            };
+        });
+
+        disconnectBtn.addEventListener('click', () => {
+            if (ws) ws.close();
+        });
+
+        sendBtn.addEventListener('click', () => {
+            const msg = messageBox.value;
+            if (msg && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(msg);
+                logMessage('You: ' + msg);
+                messageBox.value = '';
+            }
+        });
+    </script>
+{% endblock %}

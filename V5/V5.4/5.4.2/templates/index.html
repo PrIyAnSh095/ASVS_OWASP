@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+    <h2>Control Description</h2>
+    <p class="description">
+        <strong>Requirement:</strong> Verify that filenames returned to users (for example in HTTP Content-Disposition headers or email attachments) are properly encoded or sanitized according to RFC 6266 (or equivalent) so document structure is preserved and injection attacks are prevented.
+    </p>
+    <div class="indicator-box">
+        Lab Security Level: 
+        {% if mode == 'Secure' %}
+        <span class="status-pass">PASS (Secure Implementation)</span>
+        {% else %}
+        <span class="status-fail">FAIL (Vulnerable Implementation)</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid">
+    <div class="card">
+        <h2>Available Files for Download</h2>
+        <table class="file-table">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td><code>{{ file }}</code></td>
+                    <td>
+                        <button onclick="selectFile('{{ file }}')" class="btn btn-sm">Select</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2">No files available. Try restarting the Docker container.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Download Customizer</h2>
+        <p class="subtitle">Customize the returned <code>Content-Disposition</code> filename to test security boundaries.</p>
+        
+        <form action="/download" method="GET" id="downloadForm">
+            <input type="hidden" name="source" id="sourceFile" value="sample.pdf">
+            
+            <div class="form-group">
+                <label for="filenameInput">Desired Filename Header Value:</label>
+                <input type="text" name="filename" id="filenameInput" value="sample.pdf" required>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Download File</button>
+            </div>
+        </form>
+
+        <div class="payload-suggestions">
+            <h3>Payload Suggestions for Testing:</h3>
+            <ul>
+                <li><strong>Normal Name:</strong> <code>report_2026.pdf</code></li>
+                <li><strong>With Spaces:</strong> <code>report 2026 final.pdf</code></li>
+                <li><strong>Double Quotes:</strong> <code>report"quote.pdf</code></li>
+                <li><strong>Unicode Characters:</strong> <code>report_✓_résumé.pdf</code></li>
+                <li><strong>CRLF/Header Injection:</strong> <code>test%0d%0aX-Test:Injected</code></li>
+                <li><strong>CRLF Raw (Vulnerable app only):</strong> <code>test&#13;&#10;X-Test:Injected</code> (Requires raw injection via interceptor/curl)</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Response Headers Viewer</h2>
+    <p class="subtitle">Use this interactive tester to inspect the raw headers returned by the server before downloading.</p>
+    <button onclick="fetchHeaders()" class="btn">Fetch Response Headers</button>
+    <pre id="headersOutput">Click the button above to test current parameters against the API endpoint...</pre>
+</div>
+
+<script src="/static/js/app.js"></script>
+{% endblock %}

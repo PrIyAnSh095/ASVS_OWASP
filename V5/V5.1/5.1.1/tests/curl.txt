@@ -1,0 +1,6 @@
+# Standard Upload
+curl -F "file=@test.txt" http://localhost:5000/upload
+
+# Large File Upload (Should trigger 413 based on documented limits)
+dd if=/dev/zero of=large.txt bs=1M count=3
+curl -F "file=@large.txt" http://localhost:5000/upload

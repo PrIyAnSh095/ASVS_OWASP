@@ -1,0 +1,41 @@
+# Automated Verification Commands
+
+## 1. Preparing files
+```bash
+echo "Clean payload contents" > clean.txt
+echo "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*" > eicar.txt
+```
+
+## 2. Test Secure App (Port 5000)
+
+### Upload clean file:
+```bash
+curl -F "file=@clean.txt" http://localhost:5000/upload
+# View in downloads list
+curl -s http://localhost:5000/ | grep "clean.txt"
+```
+
+### Upload EICAR file:
+```bash
+curl -F "file=@eicar.txt" http://localhost:5000/upload
+# Verify not in downloads list
+curl -s http://localhost:5000/ | grep "eicar.txt"
+```
+
+---
+
+## 3. Test Vulnerable App (Port 5001)
+
+### Upload clean file:
+```bash
+curl -F "file=@clean.txt" http://localhost:5001/upload
+# View in downloads list
+curl -s http://localhost:5001/ | grep "clean.txt"
+```
+
+### Upload EICAR file:
+```bash
+curl -F "file=@eicar.txt" http://localhost:5001/upload
+# Verify in downloads list (FAILED control)
+curl -s http://localhost:5001/ | grep "eicar.txt"
+```

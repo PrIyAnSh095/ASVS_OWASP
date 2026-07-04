@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Secure Implementation: Fully Documented Uploads</h2>
+    
+    <div class="box policy">
+        <h3>File Upload Policy (Documentation)</h3>
+        <p>Before uploading a file, please review our strict file handling guidelines:</p>
+        <ul>
+            <li><strong>Permitted File Types (MIME):</strong> image/jpeg, image/png, application/pdf, text/plain</li>
+            <li><strong>Expected Extensions:</strong> .jpg, .jpeg, .png, .pdf, .txt</li>
+            <li><strong>Maximum Upload Size:</strong> 2 MB (2,097,152 bytes)</li>
+            <li><strong>Archive Handling:</strong> ZIP or TAR archives are NOT permitted. (If they were, max extracted size would be strictly limited to 5 MB).</li>
+            <li><strong>Storage Location:</strong> Files are stored temporarily in `/tmp/uploads` and are never executed.</li>
+            <li><strong>Validation Process:</strong> The server checks the file extension, MIME type, and exact file size.</li>
+            <li><strong>Malware Scanning:</strong> Uploaded files are asynchronously scanned by an internal antivirus engine. </li>
+            <li><strong>Malicious File Behavior:</strong> If malware is detected, the file is immediately quarantined/deleted, and the user's account is flagged. A notification will be sent to the user.</li>
+        </ul>
+        <p><em>Note: This exhaustive documentation fulfills ASVS 5.1.1.</em></p>
+    </div>
+
+    <div class="box">
+        <h3>Upload a File</h3>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <button type="submit">Upload File</button>
+        </form>
+        
+        <br>
+        {% if message %}
+            <div class="{% if success %}success{% else %}error{% endif %}">
+                Result: {{ message }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

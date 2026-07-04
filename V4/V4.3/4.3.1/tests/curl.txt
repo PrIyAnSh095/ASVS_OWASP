@@ -1,0 +1,14 @@
+# Secure App - Legitimate Query
+curl -X POST http://localhost:5000/graphql \
+-H "Content-Type: application/json" \
+-d '{"query": "{ users { name } }"}'
+
+# Secure App - Exceeding Depth Limit
+curl -X POST http://localhost:5000/graphql \
+-H "Content-Type: application/json" \
+-d '{"query": "{ users { friends { friends { friends { name } } } } }"}'
+
+# Vulnerable App - Extreme Depth Payload
+curl -X POST http://localhost:5001/graphql \
+-H "Content-Type: application/json" \
+-d '{"query": "{ users { friends { friends { friends { friends { friends { name } } } } } } }"}'

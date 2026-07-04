@@ -1,0 +1,7 @@
+--- SECURE APPLICATION RESPONSE ---
+[...HTML containing...]
+Magic Byte mismatch! Extension claims 'jpg' (image/jpeg), but content is 'text/plain'.
+
+--- VULNERABLE APPLICATION RESPONSE ---
+[...HTML containing...]
+File evil.jpg uploaded successfully.

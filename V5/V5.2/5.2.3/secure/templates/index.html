@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Secure Implementation: Pre-Extraction Validation</h2>
+    
+    <div class="box">
+        <p>This implementation reads the archive headers <strong>before</strong> extracting anything. It strictly enforces:</p>
+        <ul>
+            <li>Maximum 10 files allowed inside the archive.</li>
+            <li>Maximum 5 MB total uncompressed size.</li>
+        </ul>
+        
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" required accept=".zip,.docx">
+            <button type="submit">Upload Archive</button>
+        </form>
+        
+        <br>
+        {% if message %}
+            <div class="{% if success %}success{% else %}error{% endif %}">
+                Result: {{ message }}
+            </div>
+            <br>
+            <div class="status">
+                <strong>PASS / FAIL:</strong>
+                {% if success %}
+                    <span style="color: green;">N/A (Valid archive)</span>
+                {% else %}
+                    <span style="color: green;">PASS (Malicious archive safely blocked before extraction)</span>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

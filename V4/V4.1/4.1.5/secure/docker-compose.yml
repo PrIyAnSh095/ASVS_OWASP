@@ -1,0 +1,8 @@
+﻿version: '3.8'
+services:
+  secure:
+    build: .
+    container_name: asvs415_secure
+    ports:
+      - "5000:5000"
+    restart: unless-stopped

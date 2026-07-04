@@ -1,0 +1,7 @@
+# Test with a small safe file
+echo "Hello World" > small.txt
+curl -F "file=@small.txt" http://localhost:5000/upload
+
+# Test with a large malicious file
+dd if=/dev/zero of=huge.txt bs=1M count=10
+curl -F "file=@huge.txt" http://localhost:5000/upload

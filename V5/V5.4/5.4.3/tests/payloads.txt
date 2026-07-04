@@ -1,0 +1,16 @@
+# ASVS 5.4.3 Upload Test Payloads
+
+This directory contains instructions for creating testing payloads.
+
+## 1. Clean Payloads
+Any standard text document or image:
+- `clean.txt` (content: "This is a normal file upload.")
+- `normal.pdf`
+
+## 2. EICAR Antivirus Test Signature
+Create a file named `eicar.com` or `eicar.txt` containing exactly this single line:
+```text
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+```
+
+*Note: There should be no leading/trailing spaces around the string for standard scanner matching, although our simulated parser matches substrings as well.*

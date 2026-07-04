@@ -1,0 +1,1 @@
+# The payloads involve standard web authentication, focusing on the absence of the Cookie header when requesting the WS token.

@@ -1,0 +1,341 @@
+# ASVS 4.2.3 - Burp Suite Test Requests
+
+## Test 1: Health Check Request
+
+GET /health HTTP/2
+Host: localhost:8000
+Connection: close
+
+---
+
+## Test 2: Valid Request (Should Pass)
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 3: Transfer-Encoding Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 4: Connection Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Connection: close
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 5: Keep-Alive Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Keep-Alive: timeout=5, max=100
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 6: Upgrade Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Upgrade: h2c
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 7: Proxy-Connection Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Proxy-Connection: keep-alive
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 8: Trailer Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Trailer: X-Custom-Trailer
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 9: Multiple Forbidden Headers (3)
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+Connection: close
+Keep-Alive: timeout=5
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 10: All Six Forbidden Headers
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+Connection: close
+Keep-Alive: timeout=5, max=100
+Upgrade: h2c
+Proxy-Connection: keep-alive
+Trailer: X-Custom-Trailer
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 11: Validate Endpoint
+
+POST /api/validate HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+
+---
+
+## Test 12: Info Endpoint
+
+GET /api/info HTTP/2
+Host: localhost:8000
+
+---
+
+## Test 13: Case Insensitive - transfer-encoding (lowercase)
+
+POST /api/test HTTP/2
+Host: localhost:8000
+transfer-encoding: chunked
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 14: Case Insensitive - TRANSFER-ENCODING (uppercase)
+
+POST /api/test HTTP/2
+Host: localhost:8000
+TRANSFER-ENCODING: chunked
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 15: Header Injection Attempt - CRLF
+
+POST /api/test HTTP/2
+Host: localhost:8000
+User-Agent: Mozilla%0d%0aX-Injected: malicious
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 16: Empty Forbidden Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding: 
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 17: Whitespace in Header Value
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding:    chunked   
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 18: Duplicate Forbidden Headers
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+Transfer-Encoding: gzip
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 19: Vulnerable Version - Same Request
+
+POST /api/test HTTP/2
+Host: localhost:8001
+Transfer-Encoding: chunked
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 20: GET Request with Forbidden Header
+
+GET /api/test?protocol=http2 HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+
+---
+
+## Test 21: Echo Endpoint (Vulnerable)
+
+GET /api/echo HTTP/2
+Host: localhost:8001
+X-Custom: value
+
+---
+
+## Test 22: POST with Large Body and Forbidden Header
+
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+Content-Type: application/json
+Content-Length: 5000
+
+[Large JSON payload here - 5000 bytes of valid JSON]
+
+---
+
+## Test 23: Mixed Case Headers
+
+POST /api/test HTTP/2
+Host: localhost:8000
+CoNnEcTiOn: close
+KeEp-AlIvE: timeout=5
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 24: Protocol Parameter Test
+
+POST /api/test?protocol=http2 HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+---
+
+## Test 25: Comparison Request - Both Apps
+
+# First request to secure:
+POST /api/test HTTP/2
+Host: localhost:8000
+Transfer-Encoding: chunked
+
+# Then request to vulnerable:
+POST /api/test HTTP/2
+Host: localhost:8001
+Transfer-Encoding: chunked
+
+# Compare responses
+---
+
+## Burp Intruder Template
+
+# Position 1: Header name (singular)
+POST /api/test HTTP/2
+Host: localhost:8000
+§HEADER_NAME§: §HEADER_VALUE§
+Content-Type: application/json
+Content-Length: 17
+
+{"data": "test"}
+
+# Payload set 1 (HEADER_NAME):
+# Transfer-Encoding
+# Connection
+# Keep-Alive
+# Upgrade
+# Proxy-Connection
+# Trailer
+
+# Payload set 2 (HEADER_VALUE):
+# chunked
+# close
+# timeout=5, max=100
+# h2c
+# keep-alive
+# X-Custom-Trailer
+
+---
+
+## Notes for Burp Testing
+
+# 1. Use Repeater for individual request testing
+# 2. Send to Intruder for batch testing of all combinations
+# 3. Use Comparer to compare secure vs vulnerable responses
+# 4. Right-click request: Send to Scanner for automated vulnerability detection
+# 5. Use Match/Replace in Proxy for intercepting and modifying requests
+# 6. Save request collections for regression testing
+
+---
+
+## Request Collection for Automated Scanning
+
+# Save these as a Burp site map for automated testing:
+# 1. Load all requests above in Site Map
+# 2. Run Active Scan
+# 3. Enable "Audit HTTP request smuggling/desynchronization"
+# 4. Compare findings between secure and vulnerable
+
+---

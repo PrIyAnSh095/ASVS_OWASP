@@ -1,0 +1,9 @@
+﻿version: '3.8'
+
+services:
+  vulnerable:
+    build: .
+    container_name: asvs411_vulnerable
+    ports:
+      - "5001:5000"
+    restart: unless-stopped

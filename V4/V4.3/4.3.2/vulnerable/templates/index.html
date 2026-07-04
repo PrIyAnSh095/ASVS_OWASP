@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Vulnerable GraphQL API</h2>
+    <p>Introspection queries are enabled.</p>
+    <textarea id="query" rows="10" cols="50">
+query {
+  __schema {
+    types {
+      name
+    }
+  }
+}
+    </textarea><br>
+    <button id="executeBtn">Execute</button>
+    <h3>Response:</h3>
+    <div id="statusIndicator"></div>
+    <pre id="responseViewer"></pre>
+
+    <script>
+        document.getElementById('executeBtn').addEventListener('click', async () => {
+            const query = document.getElementById('query').value;
+            const res = await fetch('/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+            const data = await res.json();
+            document.getElementById('responseViewer').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('statusIndicator').textContent = (res.ok && !data.errors) ? "PASS" : "FAIL";
+        });
+    </script>
+{% endblock %}

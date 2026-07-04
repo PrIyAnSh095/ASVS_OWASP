@@ -1,0 +1,15 @@
+﻿# curl test cases for ASVS 4.1.1
+
+# Secure lab
+curl -i http://localhost:5000/
+curl -i http://localhost:5000/json
+curl -i http://localhost:5000/html
+curl -i http://localhost:5000/xml
+curl -i http://localhost:5000/text
+
+# Vulnerable lab
+curl -i http://localhost:5001/
+curl -i http://localhost:5001/json
+curl -i http://localhost:5001/html
+curl -i http://localhost:5001/xml
+curl -i http://localhost:5001/text

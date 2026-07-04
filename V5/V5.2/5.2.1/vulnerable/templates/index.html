@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Vulnerable Implementation: Unbounded File Uploads</h2>
+    
+    <div class="box">
+        <p><strong>Maximum Allowed File Size:</strong> <em>None (Unlimited)</em></p>
+        <p>This server does not enforce a maximum content length. It will attempt to read any uploaded file entirely into memory, allowing an attacker to cause a Denial of Service (DoS).</p>
+        
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <button type="submit">Upload File</button>
+        </form>
+        
+        <br>
+        {% if message %}
+            <div class="{% if success %}success{% else %}error{% endif %}">
+                Result: {{ message }}
+            </div>
+            <br>
+            <div class="status">
+                <strong>PASS / FAIL:</strong>
+                {% if success %}
+                    <span style="color: red;">FAIL (File accepted regardless of size!)</span>
+                {% else %}
+                    <span style="color: red;">Error processing file</span>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

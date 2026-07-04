@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <h2>Make an Outbound Request (Vulnerable)</h2>
+    <p>This vulnerable application does not validate the size of URI and headers before transmitting them. It's susceptible to downstream failures.</p>
+    
+    <form id="requestForm" method="POST" action="/">
+        <div class="form-group">
+            <label for="uri">Target URI (Downstream path):</label>
+            <input type="text" id="uri" name="uri" placeholder="/api/v1/resource" required value="/api/v1/resource">
+        </div>
+        <div class="form-group">
+            <label for="cookie">Cookie Header:</label>
+            <input type="text" id="cookie" name="cookie" placeholder="session=123456" value="session=123456">
+        </div>
+        <div class="form-group">
+            <label for="auth">Authorization Header:</label>
+            <input type="text" id="auth" name="auth" placeholder="Bearer token123" value="Bearer token123">
+        </div>
+        <div class="form-group">
+            <label for="custom_header">Custom Header (X-Custom-Data):</label>
+            <input type="text" id="custom_header" name="custom_header" placeholder="custom_data" value="custom_data">
+        </div>
+        <button type="submit">Send Request</button>
+    </form>
+
+    {% if result %}
+    <div class="result {% if result.status == 'PASS' %}pass{% else %}fail{% endif %}">
+        <h3>Result: {{ result.status }} (HTTP {{ result.http_status }})</h3>
+        {% if result.message %}
+            <p>{{ result.message }}</p>
+        {% endif %}
+        {% if result.downstream_response %}
+            <p><strong>Downstream Response:</strong> {{ result.downstream_response }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+--- SECURE APPLICATION RESPONSE ---
+Archive is too large when uncompressed (Limit: 5MB). Rejected to prevent Zip Bombs.
+
+--- VULNERABLE APPLICATION RESPONSE ---
+[Hangs while extracting, eventually returns 500 Internal Server Error or Success if it survives]

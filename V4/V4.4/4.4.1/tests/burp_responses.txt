@@ -1,0 +1,11 @@
+--- SECURE APPLICATION RESPONSE (when accessed via https://) ---
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+
+--- VULNERABLE APPLICATION RESPONSE (when accessed via http://) ---
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=

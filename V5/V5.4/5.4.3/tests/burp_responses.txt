@@ -1,0 +1,12 @@
+HTTP/1.1 302 FOUND
+Location: /
+Content-Type: text/html; charset=utf-8
+Content-Length: 219
+Connection: close
+
+<!-- Follow redirect. Response will show flash success/error alerts -->
+HTTP/1.1 200 OK
+...
+<div class="alert alert-error">
+  File Rejected! Threat identified: Malware Detected (EICAR Test Signature found)
+</div>

@@ -1,0 +1,8 @@
+body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+.container { background: #fff; padding: 20px; border-radius: 5px; max-width: 500px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+h2 { margin-top: 0; }
+form { display: flex; flex-direction: column; gap: 10px; }
+button { padding: 10px; background: #007bff; color: #fff; border: none; cursor: pointer; }
+.alert { padding: 10px; margin-top: 15px; border-radius: 4px; }
+.success { background: #d4edda; color: #155724; }
+.error { background: #f8d7da; color: #721c24; }

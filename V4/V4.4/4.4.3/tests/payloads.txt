@@ -1,0 +1,8 @@
+# Valid Socket.IO Auth Payload (Sent as the first WS frame)
+40{"token":"YOUR_TOKEN_HERE"}
+
+# Missing Token Payload
+40{}
+
+# Invalid Token Payload
+40{"token":"invalid-token-12345"}

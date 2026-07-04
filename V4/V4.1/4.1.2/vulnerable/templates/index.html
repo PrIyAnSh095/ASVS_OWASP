@@ -1,0 +1,37 @@
+﻿{% extends "layout.html" %}
+
+{% block content %}
+  <section class="panel">
+    <h2>Redirect and API Security</h2>
+    <p>Select a user-facing page or API action and inspect the HTTP response.</p>
+  </section>
+
+  <section class="category">
+    <h3>User-facing Endpoints</h3>
+    <button data-endpoint="/page" data-method="GET">Visit Home Page</button>
+    <button data-endpoint="/login" data-method="GET">Visit Login Page</button>
+  </section>
+
+  <section class="category">
+    <h3>API Endpoints</h3>
+    <button data-endpoint="/api/login" data-method="POST">Call API Login</button>
+    <button data-endpoint="/api/profile" data-method="GET">Call API Profile</button>
+  </section>
+
+  <section class="result-panel">
+    <div class="result-row"><span>Status</span><span id="status">-</span></div>
+    <div class="result-row"><span>Location</span><span id="location">-</span></div>
+    <div class="result-row"><span>Redirect Target</span><span id="redirect">-</span></div>
+    <div class="result-row"><span>Result</span><span id="result">-</span></div>
+    <div class="result-row result-full"><span>Response Body</span><pre id="body">-</pre></div>
+  </section>
+
+  <section class="instructions">
+    <h3>Instructions</h3>
+    <ol>
+      <li>Click a button to exercise the endpoint.</li>
+      <li>Inspect the status code, Location header, and redirect target.</li>
+      <li>Observe the vulnerable implementation redirecting API endpoints.</li>
+    </ol>
+  </section>
+{% endblock %}

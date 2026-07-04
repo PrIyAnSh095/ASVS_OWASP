@@ -1,0 +1,5 @@
+../../etc/passwd
+..\..\boot.ini
+../../../app.py
+/etc/passwd
+../../uploads/file.txt

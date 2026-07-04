@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+    <h2>Control Description</h2>
+    <p class="description">
+        <strong>Requirement:</strong> Verify that files obtained from untrusted sources are scanned by an antivirus engine before they are made available for download or processing, preventing known malicious files from being served to users.
+    </p>
+    <div class="indicator-box">
+        Lab Security Level: 
+        {% if mode == 'Secure' %}
+        <span class="status-pass">PASS (Secure Implementation)</span>
+        {% else %}
+        <span class="status-fail">FAIL (Vulnerable Implementation)</span>
+        {% endif %}
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="grid">
+    <div class="card">
+        <h2>Upload a File</h2>
+        <p class="subtitle">Upload normal files or test security boundaries using the EICAR test string.</p>
+        
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="fileSelect">Select File:</label>
+                <input type="file" name="file" id="fileSelect" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Upload & Process</button>
+        </form>
+
+        <div class="payload-suggestions">
+            <h3>Test Scenarios:</h3>
+            <ul>
+                <li><strong>Clean Test:</strong> Upload a plain text file like <code>clean.txt</code> containing "Hello World". (Should succeed in both)</li>
+                <li><strong>EICAR Threat Test:</strong> Create a file containing the EICAR antivirus test signature:
+                    <br><code style="font-size:10px; display:block; margin-top:5px; background: rgba(0,0,0,0.3); padding:5px;">X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*</code>
+                    (In Secure: Upload will be blocked and quarantined. In Vulnerable: Upload will be accepted instantly!)
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Available Downloads (Clean Zone)</h2>
+        <p class="subtitle">Files listed here are available for download by any user.</p>
+        <table class="file-table">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td><code>{{ file }}</code></td>
+                    <td>
+                        <a href="/download/{{ file }}" class="btn btn-sm">Download</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2">No files available. Try uploading a clean file.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+{% endblock %}

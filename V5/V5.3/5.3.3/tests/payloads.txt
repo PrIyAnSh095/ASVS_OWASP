@@ -1,0 +1,4 @@
+normal.zip
+zip-slip.zip
+nested.zip
+overwrite.zip

@@ -1,0 +1,5 @@
+# WebSockets don't use standard HTTP payloads after the initial handshake. 
+# Testing focuses on observing the transport protocol (ws:// vs wss://) using tools like `wscat`.
+
+wscat -c ws://localhost:5000/chat
+wscat -c wss://localhost:5000/chat --no-check

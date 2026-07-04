@@ -1,0 +1,357 @@
+{% extends "layout.html" %}
+{% block title %}ASVS 4.2.4 — Secure: CRLF Header Injection Prevention{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero hero-secure" aria-labelledby="hero-heading">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="pulse-dot secure-dot"></span>
+      SECURE IMPLEMENTATION
+    </div>
+    <h1 id="hero-heading" class="hero-title">
+      CRLF Header Injection Prevention
+    </h1>
+    <p class="hero-subtitle">
+      ASVS 4.2.4 · V4.2 HTTP Message Structure Validation · Level 3
+    </p>
+    <p class="hero-desc">
+      This application validates every HTTP header name and value for CR&nbsp;(<code>\r</code>),
+      LF&nbsp;(<code>\n</code>), and CRLF&nbsp;(<code>\r\n</code>) sequences.
+      Any request containing these forbidden characters is immediately rejected with HTTP&nbsp;400.
+    </p>
+    <div class="hero-stat-row">
+      <div class="hero-stat pass">
+        <span class="stat-icon">✅</span>
+        <span>ASVS 4.2.4</span>
+        <strong>PASS</strong>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-icon">🔒</span>
+        <span>Protocol</span>
+        <strong>HTTP/2</strong>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-icon">🛡️</span>
+        <span>Validation</span>
+        <strong>Active</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ASVS Requirement Card -->
+<section class="section-container" aria-labelledby="req-heading">
+  <div class="req-card">
+    <div class="req-card-label">ASVS Requirement</div>
+    <h2 id="req-heading" class="req-card-control">4.2.4 <span class="level-pill level-3-pill">L3</span></h2>
+    <p class="req-card-text">
+      Verify that the application only accepts HTTP/2 and HTTP/3 requests where the header fields
+      and values do not contain any CR (<code>\r</code>), LF (<code>\n</code>), or CRLF (<code>\r\n</code>)
+      sequences, to prevent header injection attacks.
+    </p>
+    <div class="req-rfcs">
+      <span class="rfc-tag">RFC 9113 §8.2.1</span>
+      <span class="rfc-tag">RFC 9114 §4.2</span>
+      <span class="rfc-tag">RFC 7230 §3.2.6</span>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Lab -->
+<section class="section-container lab-section" aria-labelledby="lab-heading">
+  <h2 id="lab-heading" class="section-title">
+    <span class="section-icon">🧪</span> Interactive Header Injection Tester
+  </h2>
+  <p class="section-desc">
+    Submit header name/value pairs to see how the <strong>secure</strong> application handles them.
+    Try the pre-loaded payloads or enter your own. The secure implementation will reject
+    any value containing CR, LF, or CRLF.
+  </p>
+
+  <!-- Payload Presets -->
+  <div class="preset-row" role="group" aria-label="Preset payloads">
+    <span class="preset-label">Quick Payloads:</span>
+    <button class="preset-btn" id="btn-clean"
+            data-name="X-Custom-Header" data-value="legitimate-value"
+            aria-label="Load clean header preset">
+      ✅ Clean Header
+    </button>
+    <button class="preset-btn" id="btn-cr"
+            data-name="X-Attack-Header" data-value="value&#13;Set-Cookie: evil=1"
+            aria-label="Load CR injection preset">
+      🔴 CR Injection
+    </button>
+    <button class="preset-btn" id="btn-lf"
+            data-name="X-Attack-Header" data-value="value&#10;Set-Cookie: evil=1"
+            aria-label="Load LF injection preset">
+      🔴 LF Injection
+    </button>
+    <button class="preset-btn" id="btn-crlf"
+            data-name="X-Attack-Header" data-value="value&#13;&#10;Set-Cookie: session=hijacked"
+            aria-label="Load CRLF injection preset">
+      🔴 CRLF Injection
+    </button>
+    <button class="preset-btn" id="btn-split"
+            data-name="X-Attack-Header" data-value="ok&#13;&#10;&#13;&#10;&lt;html&gt;Injected Body&lt;/html&gt;"
+            aria-label="Load response splitting preset">
+      🔴 Response Split
+    </button>
+  </div>
+
+  <!-- Lab Form -->
+  <div class="lab-grid">
+    <div class="lab-form-panel">
+      <form id="header-test-form" class="lab-form" novalidate aria-label="Header injection test form">
+        <div class="form-group">
+          <label for="header-name" class="form-label">Header Name</label>
+          <input
+            type="text"
+            id="header-name"
+            name="header_name"
+            class="form-input mono"
+            value="X-Custom-Header"
+            placeholder="X-Custom-Header"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="header-name-hint"
+          />
+          <span id="header-name-hint" class="form-hint">
+            E.g. <code>X-Custom-Header</code>, <code>Authorization</code>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="header-value" class="form-label">Header Value</label>
+          <textarea
+            id="header-value"
+            name="header_value"
+            class="form-input mono form-textarea"
+            placeholder="legitimate-value"
+            autocomplete="off"
+            spellcheck="false"
+            rows="3"
+            aria-describedby="header-value-hint"
+          ></textarea>
+          <span id="header-value-hint" class="form-hint">
+            Use <code>\r</code> (CR), <code>\n</code> (LF), or <code>\r\n</code> (CRLF) to test injection.
+            The preset buttons above auto-insert real control characters.
+          </span>
+        </div>
+
+        <!-- Byte visualizer -->
+        <div class="byte-vis-row" aria-live="polite" aria-label="Byte visualization">
+          <span class="byte-vis-label">Value bytes:</span>
+          <div id="byte-visualizer" class="byte-visualizer"></div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary" aria-live="polite">
+          <span class="btn-icon">🔍</span> Test Header
+        </button>
+      </form>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="lab-result-panel" role="region" aria-label="Validation result" aria-live="polite">
+      <div id="result-placeholder" class="result-placeholder">
+        <div class="result-placeholder-icon">🔬</div>
+        <p>Submit a header to see the validation result</p>
+      </div>
+
+      <div id="result-panel" class="result-panel hidden" aria-atomic="true">
+        <!-- Verdict Banner -->
+        <div id="verdict-banner" class="verdict-banner"></div>
+
+        <!-- Result Details -->
+        <div class="result-details">
+          <div class="result-row">
+            <span class="result-label">ASVS 4.2.4 Status</span>
+            <span id="asvs-status" class="result-value"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Header Name</span>
+            <code id="res-header-name" class="result-value mono"></code>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Header Value (repr)</span>
+            <code id="res-header-value" class="result-value mono break-all"></code>
+          </div>
+          <div id="violations-row" class="result-row hidden">
+            <span class="result-label">Violations</span>
+            <div id="violations-list" class="violations-list result-value"></div>
+          </div>
+        </div>
+
+        <!-- Explanation -->
+        <div class="result-explanation">
+          <h3 class="expl-title">Explanation</h3>
+          <p id="explanation-text" class="expl-text"></p>
+        </div>
+
+        <!-- Attack Prevention -->
+        <div id="attack-prevented-section" class="attack-prevented-section hidden">
+          <h3 class="expl-title">Attacks Prevented</h3>
+          <ul id="attack-list" class="attack-list"></ul>
+        </div>
+
+        <!-- HTTP Simulation -->
+        <div id="http-sim-section" class="http-sim-section hidden">
+          <h3 class="expl-title">HTTP/1.1 Injection Simulation</h3>
+          <p class="expl-text">
+            If this value were reflected in an HTTP/1.1 response without validation,
+            the raw response wire data would look like:
+          </p>
+          <pre id="http-sim-pre" class="http-sim-pre code-block"></pre>
+        </div>
+
+        <!-- RFC References -->
+        <div id="rfc-section" class="rfc-section hidden">
+          <h3 class="expl-title">Relevant RFCs</h3>
+          <ul id="rfc-list" class="rfc-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Theory Section -->
+<section class="section-container theory-section" aria-labelledby="theory-heading">
+  <h2 id="theory-heading" class="section-title">
+    <span class="section-icon">📖</span> What is CRLF Injection?
+  </h2>
+  <div class="theory-grid">
+    <div class="theory-card">
+      <div class="theory-card-icon">📡</div>
+      <h3>HTTP Headers &amp; CRLF</h3>
+      <p>
+        In HTTP/1.1, headers are separated by CRLF (<code>\r\n</code>) sequences.
+        Each header line is: <code>Name: Value\r\n</code>.
+        If an attacker injects <code>\r\n</code> into a header value, they effectively
+        terminate the current header and begin a new one — Header Injection.
+      </p>
+    </div>
+    <div class="theory-card">
+      <div class="theory-card-icon">✂️</div>
+      <h3>Response Splitting</h3>
+      <p>
+        By injecting <code>\r\n\r\n</code> (double CRLF), an attacker can split an HTTP
+        response into two. Proxies and caches may cache the second injected response,
+        serving malicious content to other users — Cache Poisoning.
+      </p>
+    </div>
+    <div class="theory-card">
+      <div class="theory-card-icon">📝</div>
+      <h3>Log Injection</h3>
+      <p>
+        Server logs often record header values. Injecting <code>\n</code> into a
+        header value allows an attacker to write fake log entries, hiding their
+        tracks or framing other users by forging log lines.
+      </p>
+    </div>
+    <div class="theory-card">
+      <div class="theory-card-icon">🔏</div>
+      <h3>HTTP/2 &amp; HTTP/3 Protection</h3>
+      <p>
+        RFC 9113 §8.2.1 (HTTP/2) and RFC 9114 §4.2 (HTTP/3) explicitly forbid
+        CR and LF in header fields. Binary framing means these characters have no
+        special meaning at the transport layer. But ASVS 4.2.4 requires
+        <em>application-level</em> validation too.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- How This App Protects -->
+<section class="section-container protection-section" aria-labelledby="prot-heading">
+  <h2 id="prot-heading" class="section-title">
+    <span class="section-icon">🛡️</span> How the Secure App Validates Headers
+  </h2>
+  <div class="code-explainer">
+    <div class="code-explainer-desc">
+      <h3>Validation Logic (Python)</h3>
+      <p>
+        A <code>before_request</code> hook runs on every incoming request.
+        It inspects every header name and value using a regex that matches
+        any CR (<code>0x0d</code>) or LF (<code>0x0a</code>) byte.
+        If any violation is found, the request is immediately rejected with HTTP 400.
+      </p>
+      <div class="protection-steps">
+        <div class="protection-step">
+          <span class="step-num">1</span>
+          <span>Every request hits the <code>before_request</code> hook</span>
+        </div>
+        <div class="protection-step">
+          <span class="step-num">2</span>
+          <span>Each header name &amp; value is scanned for <code>[\r\n]</code></span>
+        </div>
+        <div class="protection-step">
+          <span class="step-num">3</span>
+          <span>Any match → HTTP 400 response with violation details</span>
+        </div>
+        <div class="protection-step">
+          <span class="step-num">4</span>
+          <span>User-supplied data is also validated before being set in response headers</span>
+        </div>
+      </div>
+    </div>
+    <div class="code-block-wrapper">
+      <div class="code-block-label">app.py — Secure Validation</div>
+      <pre class="code-block">CRLF_PATTERN = re.compile(r"[\r\n]")
+
+def validate_headers(headers: dict) -> list[str]:
+    violations = []
+    for name, value in headers.items():
+        if CRLF_PATTERN.search(name):
+            violations.append(f"Header name contains CR/LF")
+        if CRLF_PATTERN.search(value):
+            violations.append(f"Header '{name}' value contains CR/LF")
+    return violations
+
+@app.before_request
+def enforce_no_crlf_in_headers():
+    violations = validate_headers(dict(request.headers))
+    if violations:
+        return jsonify({"status": "REJECTED", "violations": violations}), 400</pre>
+    </div>
+  </div>
+</section>
+
+<!-- Challenge Section -->
+<section class="section-container challenge-section" aria-labelledby="challenge-heading">
+  <h2 id="challenge-heading" class="section-title">
+    <span class="section-icon">🎯</span> Student Challenges
+  </h2>
+  <ol class="challenge-list">
+    <li>
+      <strong>CR Injection</strong> — Use the preset button to send a CR (<code>\r</code>)
+      in a header value. Observe the HTTP 400 rejection from the secure app.
+    </li>
+    <li>
+      <strong>LF Injection</strong> — Send a LF (<code>\n</code>) in a header value.
+      Confirm rejection. Compare with the vulnerable app's response.
+    </li>
+    <li>
+      <strong>CRLF Injection</strong> — Send <code>\r\n</code> in a header value.
+      Observe the violation detail in the rejection response.
+    </li>
+    <li>
+      <strong>Response Splitting</strong> — Use the Response Split preset.
+      Explain what would happen if this reached an HTTP/1.1 downstream server.
+    </li>
+    <li>
+      <strong>Compare</strong> — Open the Vulnerable app (port 5001) and send the
+      same payloads. Document the difference in behaviour.
+    </li>
+    <li>
+      <strong>Fix the Vulnerable App</strong> — Add the missing validation to
+      <code>vulnerable/app.py</code> to make it ASVS 4.2.4 compliant.
+    </li>
+    <li>
+      <strong>RFC Research</strong> — Read RFC 9113 §8.2.1 and explain in your own
+      words why HTTP/2 binary framing is not sufficient alone.
+    </li>
+  </ol>
+</section>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+--- SECURE APPLICATION RESPONSE (Request 1, 2, 3) ---
+HTTP/1.1 200 OK
+[...HTML...] File test.txt uploaded successfully!
+
+--- SECURE APPLICATION RESPONSE (Request 4, 5) ---
+HTTP/1.1 200 OK (Or 403)
+[...HTML...] Quota Exceeded: You have reached the maximum number of allowed files.
+
+--- VULNERABLE APPLICATION RESPONSE ---
+HTTP/1.1 200 OK for all 5 requests.

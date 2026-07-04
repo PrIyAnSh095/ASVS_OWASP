@@ -1,0 +1,1 @@
+curl -F 'file=@assets/sample-files/test.py' http://localhost:5000/upload\ncurl http://localhost:5000/uploads/test.py

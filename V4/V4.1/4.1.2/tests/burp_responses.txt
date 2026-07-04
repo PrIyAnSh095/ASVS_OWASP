@@ -1,0 +1,19 @@
+﻿# Secure lab expected responses
+HTTP/1.1 302 FOUND
+Location: https://localhost:5000/
+
+HTTP/1.1 403 FORBIDDEN
+Content-Type: application/json
+
+HTTP/1.1 403 FORBIDDEN
+Content-Type: application/json
+
+# Vulnerable lab expected responses
+HTTP/1.1 302 FOUND
+Location: https://localhost:5001/
+
+HTTP/1.1 307 TEMPORARY REDIRECT
+Location: https://localhost:5001/api/login
+
+HTTP/1.1 307 TEMPORARY REDIRECT
+Location: https://localhost:5001/api/profile

@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Vulnerable Implementation: Unrestricted Storage</h2>
+    
+    <div class="box">
+        <form method="GET" action="/">
+            <label>Current User:</label>
+            <input type="text" name="username" value="{{ username }}" required>
+            <button type="submit">Switch User</button>
+        </form>
+    </div>
+    
+    <div class="box quota" style="border-left: 4px solid red;">
+        <h3>User Quota ({{ username }})</h3>
+        <p><strong>Files Uploaded:</strong> {{ quota.file_count }} / (Unlimited)</p>
+        <p><strong>Storage Used:</strong> {{ (quota.storage_used / 1024)|round(2) }} KB / (Unlimited)</p>
+        <p><em>Warning: This user can exhaust the server's storage!</em></p>
+    </div>
+
+    <div class="box">
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="file" name="file" required>
+            <button type="submit">Upload File</button>
+        </form>
+        
+        <br>
+        {% if message %}
+            <div class="{% if success %}success{% else %}error{% endif %}">
+                Result: {{ message }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

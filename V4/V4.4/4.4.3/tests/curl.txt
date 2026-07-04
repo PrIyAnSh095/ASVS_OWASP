@@ -1,0 +1,9 @@
+# Step 1: Obtain a token from the Secure server
+curl -X POST http://localhost:5000/login
+
+# Example Response:
+# {"token": "a1b2c3d4e5f6g7h8i9j0..."}
+
+# Note: Standard cURL cannot easily send the Socket.IO v4 auth payload. 
+# You must use a tool like Postman or wscat, establishing the WS and manually sending:
+# 40{"token":"a1b2c3d4e5f6g7h8i9j0..."}

@@ -1,0 +1,1 @@
+curl -F 'file=@symlink.zip' http://localhost:5000/upload

@@ -1,0 +1,8 @@
+version: '3'
+services:
+  vulnerable-app:
+    build: 
+      context: ..
+      dockerfile: vulnerable/Dockerfile
+    ports:
+      - "5001:5000"

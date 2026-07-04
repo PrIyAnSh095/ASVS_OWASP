@@ -1,0 +1,391 @@
+{% extends "layout.html" %}
+{% block title %}ASVS 4.2.4 — Vulnerable: Missing CRLF Header Validation{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero hero-vulnerable" aria-labelledby="hero-heading">
+  <div class="hero-content">
+    <div class="hero-badge vuln-badge">
+      <span class="pulse-dot vuln-dot"></span>
+      VULNERABLE IMPLEMENTATION
+    </div>
+    <h1 id="hero-heading" class="hero-title">
+      Missing CRLF Header Validation
+    </h1>
+    <p class="hero-subtitle">
+      ASVS 4.2.4 · V4.2 HTTP Message Structure Validation · Level 3
+    </p>
+    <p class="hero-desc">
+      This application <strong>intentionally omits</strong> CRLF header validation.
+      It accepts header values containing CR&nbsp;(<code>\r</code>), LF&nbsp;(<code>\n</code>),
+      and CRLF&nbsp;(<code>\r\n</code>) sequences, demonstrating the risks and what
+      a compliant application must do instead.
+    </p>
+    <div class="vuln-warning-box">
+      <span class="warn-icon">⚠️</span>
+      <div>
+        <strong>Educational Notice</strong>: Modern HTTP/2 servers (Hypercorn, h2) prevent raw
+        CRLF injection at the wire/framing level. This lab demonstrates the
+        <em>application-layer</em> vulnerability — missing validation logic that must
+        exist per ASVS 4.2.4 regardless of the transport protocol.
+      </div>
+    </div>
+    <div class="hero-stat-row">
+      <div class="hero-stat fail">
+        <span class="stat-icon">❌</span>
+        <span>ASVS 4.2.4</span>
+        <strong>FAIL</strong>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-icon">🔓</span>
+        <span>Validation</span>
+        <strong>MISSING</strong>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-icon">💀</span>
+        <span>Risk</span>
+        <strong>Header Inj.</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ASVS Requirement Card -->
+<section class="section-container" aria-labelledby="req-heading">
+  <div class="req-card req-card-fail">
+    <div class="req-card-label">ASVS Requirement — NOT MET</div>
+    <h2 id="req-heading" class="req-card-control">4.2.4 <span class="level-pill level-3-pill">L3</span> <span class="fail-pill">FAIL</span></h2>
+    <p class="req-card-text">
+      Verify that the application only accepts HTTP/2 and HTTP/3 requests where the header fields
+      and values do not contain any CR (<code>\r</code>), LF (<code>\n</code>), or CRLF (<code>\r\n</code>)
+      sequences, to prevent header injection attacks.
+    </p>
+    <div class="req-fail-reason">
+      <strong>Why this fails:</strong> The application performs <em>no validation</em> of
+      header names or values. Any CR, LF, or CRLF in user-supplied data passes through
+      unchecked and may be used in response headers, log entries, or forwarded to downstream systems.
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Lab -->
+<section class="section-container lab-section" aria-labelledby="lab-heading">
+  <h2 id="lab-heading" class="section-title">
+    <span class="section-icon">🧪</span> Interactive CRLF Injection Demonstrator
+  </h2>
+  <p class="section-desc">
+    Submit header name/value pairs to see how the <strong>vulnerable</strong> application handles them.
+    Notice that it accepts CR, LF, and CRLF sequences without rejection.
+    Compare with the Secure app (port 5000) to understand the difference.
+  </p>
+
+  <!-- Payload Presets -->
+  <div class="preset-row" role="group" aria-label="Preset payloads">
+    <span class="preset-label">Attack Payloads:</span>
+    <button class="preset-btn" id="btn-clean"
+            data-name="X-Custom-Header" data-value="legitimate-value"
+            aria-label="Load clean header preset">
+      ✅ Clean Header
+    </button>
+    <button class="preset-btn preset-btn-attack" id="btn-cr"
+            data-name="X-Attack-Header" data-value="value&#13;Set-Cookie: evil=1"
+            aria-label="Load CR injection preset">
+      🔴 CR Injection
+    </button>
+    <button class="preset-btn preset-btn-attack" id="btn-lf"
+            data-name="X-Attack-Header" data-value="value&#10;Set-Cookie: evil=1"
+            aria-label="Load LF injection preset">
+      🔴 LF Injection
+    </button>
+    <button class="preset-btn preset-btn-attack" id="btn-crlf"
+            data-name="X-Attack-Header" data-value="value&#13;&#10;Set-Cookie: session=hijacked"
+            aria-label="Load CRLF injection preset">
+      🔴 CRLF Injection
+    </button>
+    <button class="preset-btn preset-btn-attack" id="btn-log"
+            data-name="X-User-Agent" data-value="Mozilla/5.0&#10;[ADMIN] LOGIN SUCCESSFUL - user=administrator"
+            aria-label="Load log injection preset">
+      🔴 Log Injection
+    </button>
+    <button class="preset-btn preset-btn-attack" id="btn-split"
+            data-name="X-Attack-Header" data-value="ok&#13;&#10;&#13;&#10;&lt;html&gt;&lt;body&gt;Injected Page&lt;/body&gt;&lt;/html&gt;"
+            aria-label="Load response splitting preset">
+      🔴 Response Split
+    </button>
+  </div>
+
+  <!-- Lab Form -->
+  <div class="lab-grid">
+    <div class="lab-form-panel">
+      <form id="header-test-form" class="lab-form" novalidate aria-label="Header injection test form">
+        <div class="form-group">
+          <label for="header-name" class="form-label">Header Name</label>
+          <input
+            type="text"
+            id="header-name"
+            name="header_name"
+            class="form-input mono"
+            value="X-Custom-Header"
+            placeholder="X-Custom-Header"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="header-name-hint"
+          />
+          <span id="header-name-hint" class="form-hint">
+            E.g. <code>X-Custom-Header</code>, <code>Authorization</code>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="header-value" class="form-label">Header Value</label>
+          <textarea
+            id="header-value"
+            name="header_value"
+            class="form-input mono form-textarea"
+            placeholder="value-to-inject"
+            autocomplete="off"
+            spellcheck="false"
+            rows="3"
+            aria-describedby="header-value-hint"
+          ></textarea>
+          <span id="header-value-hint" class="form-hint">
+            Preset buttons inject real <code>\r</code> (CR), <code>\n</code> (LF), or <code>\r\n</code> (CRLF) characters.
+            The vulnerable app will accept them without rejection.
+          </span>
+        </div>
+
+        <!-- Byte visualizer -->
+        <div class="byte-vis-row" aria-live="polite" aria-label="Byte visualization">
+          <span class="byte-vis-label">Value bytes:</span>
+          <div id="byte-visualizer" class="byte-visualizer"></div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-danger" aria-live="polite">
+          <span class="btn-icon">⚡</span> Inject Header
+        </button>
+      </form>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="lab-result-panel" role="region" aria-label="Injection result" aria-live="polite">
+      <div id="result-placeholder" class="result-placeholder">
+        <div class="result-placeholder-icon">💉</div>
+        <p>Submit a payload to see what the vulnerable app does</p>
+      </div>
+
+      <div id="result-panel" class="result-panel hidden" aria-atomic="true">
+        <!-- Verdict Banner -->
+        <div id="verdict-banner" class="verdict-banner"></div>
+
+        <!-- Result Details -->
+        <div class="result-details">
+          <div class="result-row">
+            <span class="result-label">ASVS 4.2.4 Status</span>
+            <span id="asvs-status" class="result-value"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Header Name</span>
+            <code id="res-header-name" class="result-value mono"></code>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Header Value (repr)</span>
+            <code id="res-header-value" class="result-value mono break-all"></code>
+          </div>
+          <div id="attack-type-row" class="result-row hidden">
+            <span class="result-label">Attack Type</span>
+            <span id="attack-type-text" class="result-value attack-type-badge"></span>
+          </div>
+          <div id="missing-control-row" class="result-row hidden">
+            <span class="result-label">Missing Control</span>
+            <span id="missing-control-text" class="result-value missing-ctrl-text"></span>
+          </div>
+        </div>
+
+        <!-- Explanation -->
+        <div class="result-explanation">
+          <h3 class="expl-title">What Happened</h3>
+          <p id="explanation-text" class="expl-text"></p>
+        </div>
+
+        <!-- HTTP Simulation -->
+        <div id="http-sim-section" class="http-sim-section">
+          <h3 class="expl-title">HTTP/1.1 Response Injection Simulation</h3>
+          <p class="expl-text">
+            If this value were reflected in an HTTP/1.1 response (or passed to an
+            HTTP/1.1 downstream server), the raw response bytes would look like:
+          </p>
+          <pre id="http-sim-pre" class="http-sim-pre code-block vuln-code"></pre>
+        </div>
+
+        <!-- Log Injection Preview -->
+        <div id="log-inject-section" class="log-inject-section hidden">
+          <h3 class="expl-title">Log Injection Preview</h3>
+          <p class="expl-text">
+            The server log would contain unsanitized newlines, creating fake entries:
+          </p>
+          <pre id="log-inject-pre" class="http-sim-pre code-block log-code"></pre>
+        </div>
+
+        <!-- What Secure Does -->
+        <div class="secure-comparison">
+          <h3 class="expl-title">🔒 How the Secure App Differs</h3>
+          <p id="secure-comparison-text" class="expl-text"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Attack Explanation -->
+<section class="section-container attack-section" aria-labelledby="attack-heading">
+  <h2 id="attack-heading" class="section-title">
+    <span class="section-icon">💀</span> CRLF Injection Attack Vectors
+  </h2>
+  <div class="attack-grid">
+    <div class="attack-card attack-card-red">
+      <h3>Header Injection</h3>
+      <p>
+        Attacker injects <code>\r\nSet-Cookie: session=attacker</code> into a header value.
+        The server adds an attacker-controlled cookie to the response, potentially hijacking
+        sessions of other users who receive the poisoned response from a cache.
+      </p>
+      <div class="attack-example">
+        <strong>Payload:</strong>
+        <code>value\r\nSet-Cookie: hijacked=true; Path=/</code>
+      </div>
+    </div>
+    <div class="attack-card attack-card-orange">
+      <h3>HTTP Response Splitting</h3>
+      <p>
+        Double CRLF (<code>\r\n\r\n</code>) terminates the headers section, allowing the
+        attacker to inject a complete second HTTP response. Reverse proxies and CDNs may
+        cache this injected response and serve malicious content to all users.
+      </p>
+      <div class="attack-example">
+        <strong>Payload:</strong>
+        <code>value\r\n\r\n&lt;html&gt;Fake Page&lt;/html&gt;</code>
+      </div>
+    </div>
+    <div class="attack-card attack-card-yellow">
+      <h3>Log Injection</h3>
+      <p>
+        When server logs record header values, injecting <code>\n</code> allows an attacker
+        to write arbitrary lines to the log file. This can hide malicious activity or
+        frame innocent users with forged authentication entries.
+      </p>
+      <div class="attack-example">
+        <strong>Payload:</strong>
+        <code>Mozilla\n[INFO] ADMIN logged in from 192.168.1.1</code>
+      </div>
+    </div>
+    <div class="attack-card attack-card-purple">
+      <h3>Cache Poisoning</h3>
+      <p>
+        Combined with response splitting, CRLF injection can force a shared cache
+        (Varnish, Nginx, CDN) to store and serve the attacker's injected response.
+        All users requesting the same URL then receive the malicious content.
+      </p>
+      <div class="attack-example">
+        <strong>Impact:</strong> Mass compromise via shared cache poisoning
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- What's Missing in This App -->
+<section class="section-container missing-section" aria-labelledby="missing-heading">
+  <h2 id="missing-heading" class="section-title">
+    <span class="section-icon">🔍</span> What's Missing in This Vulnerable App
+  </h2>
+  <div class="code-explainer">
+    <div class="code-explainer-desc">
+      <h3>The Missing Validation (Python)</h3>
+      <p>
+        The vulnerable application has <strong>no</strong> <code>before_request</code> hook
+        and no validation in any endpoint. User-supplied header data is processed and
+        potentially reflected without any CR/LF check.
+      </p>
+      <div class="missing-steps">
+        <div class="missing-step">
+          <span class="miss-icon">❌</span>
+          <span>No <code>before_request</code> hook to validate incoming headers</span>
+        </div>
+        <div class="missing-step">
+          <span class="miss-icon">❌</span>
+          <span>No regex check for <code>[\r\n]</code> in header names or values</span>
+        </div>
+        <div class="missing-step">
+          <span class="miss-icon">❌</span>
+          <span>No sanitization before logging header values</span>
+        </div>
+        <div class="missing-step">
+          <span class="miss-icon">❌</span>
+          <span>No rejection of requests with malformed headers</span>
+        </div>
+      </div>
+      <div class="fix-hint">
+        <strong>Fix:</strong> Add the same <code>before_request</code> validation
+        as in the secure app. See <code>secure/app.py</code> for the complete implementation.
+      </div>
+    </div>
+    <div class="code-block-wrapper">
+      <div class="code-block-label vuln-label">vulnerable/app.py — Missing Validation</div>
+      <pre class="code-block vuln-code"># VULNERABLE: No before_request hook
+# VULNERABLE: No validate_headers() function
+# VULNERABLE: Headers processed without checking CR/LF
+
+@app.route("/api/validate-header", methods=["POST"])
+def api_validate_header():
+    data = request.get_json()
+    header_name = data.get("header_name")
+    header_value = data.get("header_value")
+
+    # ❌ MISSING: validate_headers({header_name: header_value})
+    # ❌ MISSING: if violations: return 400
+
+    # Value used directly — CR/LF sequences pass through
+    resp.headers[header_name] = header_value  # DANGER!
+    return resp</pre>
+    </div>
+  </div>
+</section>
+
+<!-- Student Challenges -->
+<section class="section-container challenge-section" aria-labelledby="challenge-heading">
+  <h2 id="challenge-heading" class="section-title">
+    <span class="section-icon">🎯</span> Student Challenges
+  </h2>
+  <ol class="challenge-list">
+    <li>
+      <strong>CR Injection</strong> — Send a CR (<code>\r</code>) in a header value.
+      Note that the vulnerable app accepts it. Check what the secure app does.
+    </li>
+    <li>
+      <strong>LF Injection</strong> — Send an LF (<code>\n</code>) in a header value.
+      Examine the simulated HTTP/1.1 response to understand the impact.
+    </li>
+    <li>
+      <strong>Log Injection</strong> — Use the Log Injection preset. Check the Docker
+      logs (<code>docker logs asvs-4.2.4-vulnerable</code>) to see the injected log line.
+    </li>
+    <li>
+      <strong>Response Splitting</strong> — Use the Response Split preset.
+      Draw a diagram of what a reverse proxy would cache.
+    </li>
+    <li>
+      <strong>Fix It</strong> — Add CRLF validation to <code>vulnerable/app.py</code>
+      to make it pass ASVS 4.2.4. Test your fix using the interactive form.
+    </li>
+    <li>
+      <strong>Framework Limits</strong> — Try sending a raw CRLF via <code>curl</code>.
+      Explain why curl/h2 prevents it and why that's not sufficient.
+    </li>
+    <li>
+      <strong>Write a Report</strong> — Document the attack scenario, impact,
+      and remediation for this CRLF vulnerability as a security assessment finding.
+    </li>
+  </ol>
+</section>
+
+{% endblock %}

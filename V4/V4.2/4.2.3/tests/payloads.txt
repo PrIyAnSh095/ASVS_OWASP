@@ -1,0 +1,388 @@
+# ASVS 4.2.3 - Attack Payloads and Test Cases
+
+## Header Injection Payloads
+
+### Basic CRLF Injection
+
+Raw:
+User-Agent: Mozilla%0d%0aX-Injected: value
+
+Decoded:
+User-Agent: Mozilla
+X-Injected: value
+
+---
+
+### Header Injection with Forbidden Header
+
+Raw:
+User-Agent: Mozilla%0d%0aTransfer-Encoding: chunked
+
+Decoded:
+User-Agent: Mozilla
+Transfer-Encoding: chunked
+
+Expected Result:
+- Secure: 400 Bad Request
+- Vulnerable: 200 OK with injected header forwarded
+
+---
+
+### Response Splitting Payload (CRLF + HTTP Response)
+
+Raw:
+User-Agent: Mozilla%0d%0a%0d%0aHTTP/1.1 200 OK%0d%0aContent-Type: text/html%0d%0aContent-Length: 13%0d%0a%0d%0a<h1>Hacked</h1>
+
+Decoded:
+User-Agent: Mozilla
+
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 13
+
+<h1>Hacked</h1>
+
+Expected Result:
+- Secure: 400 Bad Request
+- Vulnerable: May inject false HTTP response
+
+---
+
+## Request Smuggling Payloads
+
+### Transfer-Encoding Smuggling
+
+Payload:
+Transfer-Encoding: chunked
+
+Body Format:
+5
+GET /admin HTTP/1.1
+Host: localhost
+
+0
+
+Expected Result:
+- Secure: 400 Bad Request
+- Vulnerable: May process as separate request
+
+---
+
+### Connection: close Smuggling
+
+Payload:
+Connection: close
+Transfer-Encoding: chunked
+
+Expected Result:
+- Secure: 400 Bad Request (Connection forbidden)
+- Vulnerable: 200 OK (Connection accepted)
+
+---
+
+### Dual HTTP Version Confusion
+
+Payload:
+HTTP/2 request with:
+Transfer-Encoding: chunked
+Connection: close
+Upgrade: h2c
+
+Expected Result:
+- Secure: 400 Bad Request
+- Vulnerable: 200 OK (vulnerable to downgrade confusion)
+
+---
+
+## Cache Poisoning Payloads
+
+### X-Forwarded-For Injection
+
+Payload:
+X-Forwarded-For: 192.168.1.100%0d%0aTransfer-Encoding: chunked
+
+Expected Result:
+- If cached, subsequent requests see injected header
+- Secure: Rejects (no cache pollution)
+- Vulnerable: May cache with injected header
+
+---
+
+### Host Header with Forbidden Header
+
+Payload:
+Host: attacker.com%0d%0aConnection: close
+
+Expected Result:
+- Cache key pollution
+- Secure: 400 Bad Request
+- Vulnerable: May cache under attacker domain
+
+---
+
+### X-Original-URL Bypass
+
+Payload:
+X-Original-URL: /admin%0d%0aTransfer-Encoding: chunked
+
+Expected Result:
+- Path confusion attack
+- Secure: 400 Bad Request
+- Vulnerable: May process under different path
+
+---
+
+## Protocol Confusion Payloads
+
+### HTTP/1.1 Traits in HTTP/2
+
+Payload 1 - Connection Persistence Attempt:
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+Payload 2 - Upgrade Request:
+Upgrade: h2c
+
+Payload 3 - Chunked Encoding Request:
+Transfer-Encoding: chunked
+
+Expected Result:
+- Secure: 400 Bad Request for each
+- Vulnerable: 200 OK, accepts all
+
+---
+
+### Trailer with Hidden Headers
+
+Payload:
+Trailer: X-Admin-Override
+Content-Length: 17
+
+{"data": "test"}
+
+Expected Result:
+- Secure: 400 Bad Request
+- Vulnerable: May process trailer headers after body
+
+---
+
+## Complex Attack Chains
+
+### Attack Chain 1: Cache Poisoning via Response Splitting
+
+Step 1 - Send malicious request:
+Host: victim.com%0d%0a%0d%0aHTTP/1.1 200 OK%0d%0aContent-Length: 50%0d%0a%0d%0a<script>alert('XSS')</script>
+Transfer-Encoding: chunked
+
+Step 2 - Expected behavior:
+Vulnerable app forwards to cache
+Cache stores poisoned response
+Next user receives XSS
+
+Step 3 - Secure app:
+Rejects with 400 at Step 1
+Cache never receives poisoned response
+
+---
+
+### Attack Chain 2: Request Smuggling to Admin
+
+Step 1 - Front-end (HTTP/2):
+Transfer-Encoding: chunked
+
+5
+GET /admin HTTP/1.1
+Host: localhost
+
+0
+
+Step 2 - Behind-the-scenes:
+HTTP/2 to HTTP/1.1 downgrade
+Backend sees:
+GET /admin HTTP/1.1
+
+Step 3 - Results:
+Vulnerable: Possible unauthorized access
+Secure: 400 before ever reaching backend
+
+---
+
+### Attack Chain 3: Header Injection for Authentication Bypass
+
+Step 1 - Inject authorization header:
+X-Forwarded-For: 127.0.0.1%0d%0aAuthorization: Bearer admin_token
+
+Step 2 - If app trusts X-Forwarded-For:
+Thinks request is local
+Uses injected Authorization header
+
+Step 3 - Results:
+Vulnerable: May authenticate as admin
+Secure: Rejects request (via protocol detection of Attack pattern)
+
+---
+
+## Test Payload Matrix
+
+| Payload | Type | Secure Expected | Vulnerable Expected |
+|---------|------|-----------------|---------------------|
+| Transfer-Encoding: chunked | Simple | 400 | 200 |
+| Connection: close | Simple | 400 | 200 |
+| Keep-Alive: timeout=5 | Simple | 400 | 200 |
+| Upgrade: h2c | Simple | 400 | 200 |
+| Proxy-Connection: keep-alive | Simple | 400 | 200 |
+| Trailer: X-Trailer | Simple | 400 | 200 |
+| %0d%0aX-Injected: value | CRLF | 400 | 200+ |
+| %0d%0a%0d%0aHTTP/1.1 200 OK | Response Split | 400 | 200+ |
+| GET /admin + chunked | Smuggle | 400 | 200+ |
+| Host: attacker.com%0d%0a... | Cache Poison | 400 | 200+ |
+
+---
+
+## Real-World Payload Examples from CVEs
+
+### CVE-2019-9193 (Nginx HTTP/2 Issue)
+
+Payload:
+Connection: close
+
+Expected on affected versions:
+- Response: Connection-aware but passes through
+- Result: Possible cache bypass
+
+Expected on secure implementation:
+- Response: 400 Bad Request
+- Result: Rejected at application level
+
+---
+
+### CVE-2018-9206 (HTTP/2 Header Injection)
+
+Payload:
+Trailer: X-Custom%0d%0aX-Injected: malicious
+
+Expected on affected versions:
+- Trailer processed with injected header
+
+Expected on secure implementation:
+- 400 Bad Request (Trailer is forbidden)
+
+---
+
+## Testing Procedure
+
+### Procedure 1: Individual Payload Testing
+
+1. Start with health check request (establish baseline)
+2. Send valid request (confirm 200 OK)
+3. Send single forbidden header
+4. Confirm secure = 400, vulnerable = 200
+5. Repeat for each of 6 headers
+
+### Procedure 2: Combination Testing
+
+1. Send 2 forbidden headers
+2. Send 3 forbidden headers
+3. Send all 6 forbidden headers
+4. Confirm secure always = 400
+
+### Procedure 3: Attack Vector Testing
+
+1. Send CRLF injection attempt
+2. Send response splitting payload
+3. Send request smuggling payload
+4. Confirm secure = 400 for all
+
+### Procedure 4: Protocol Confusion
+
+1. Send HTTP/2 with HTTP/1.1 traits
+2. Send HTTP/1.1 method with HTTP/2 connection
+3. Confirm secure rejects based on protocol
+
+### Procedure 5: Edge Cases
+
+1. Empty header values
+2. Whitespace-only header values
+3. Multiple instances of same header
+4. Mixed case header names
+5. Confirm all rejected by secure
+
+---
+
+## Expected Results Summary
+
+### Secure Implementation (Port 8000)
+
+Every forbidden header test:
+- Status Code: 400 Bad Request
+- Response: JSON with status: "FAIL"
+- forbidden_headers_found: [list of found headers]
+- Time: 10-50ms
+
+### Vulnerable Implementation (Port 8001)
+
+Every request test:
+- Status Code: 200 OK
+- Response: JSON with status: "ACCEPTED"
+- all_received_headers: [all headers echoed]
+- Time: 5-20ms
+
+---
+
+## Notes on Payload Encoding
+
+### URL Encoding for HTTP Proxies
+
+Standard characters: As-is
+Reserved characters: %XX encoding
+
+Example:
+- CRLF: %0d%0a
+- Space: %20
+- Colon: %3a
+- Slash: %2f
+
+### Raw Encoding for Burp Suite
+
+In Burp Repeater:
+1. Type payload directly
+2. Or paste URL-encoded version and use "Decode as" option
+3. Or use Burp's character encoding menu
+
+---
+
+## Logging and Detection
+
+### What to look for in logs:
+
+Secure implementation logs:
+```
+[WARNING] Forbidden HTTP/2 header attempt: Transfer-Encoding from 127.0.0.1
+[WARNING] Forbidden HTTP/2 header attempt: Connection from 127.0.0.1
+[INFO] HTTP/2 request accepted - compliant with ASVS 4.2.3
+```
+
+Vulnerable implementation logs:
+```
+[INFO] Request accepted with headers: Transfer-Encoding, Connection
+[DEBUG] Forwarding headers to backend
+```
+
+---
+
+## Verification Checklist
+
+After testing all payloads, verify:
+
+- [ ] All 6 forbidden headers individually rejected by secure
+- [ ] All 6 forbidden headers individually accepted by vulnerable
+- [ ] Combinations of forbidden headers rejected by secure
+- [ ] CRLF injection attempts rejected by secure
+- [ ] Response splitting attempts rejected by secure
+- [ ] Request smuggling payloads rejected by secure
+- [ ] Status codes: 400 (secure) vs 200 (vulnerable)
+- [ ] Response times reasonable for both
+- [ ] Error messages clear and educational
+- [ ] No false positives (valid headers still work)
+
+---

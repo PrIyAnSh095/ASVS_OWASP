@@ -1,0 +1,7 @@
+# Documentation Review Checklist
+
+[ ] Are allowed file types listed?
+[ ] Are allowed extensions listed?
+[ ] Is the maximum upload size stated?
+[ ] Is the maximum extracted archive size stated (if applicable)?
+[ ] Is the malware scanning and handling process explained?

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ASVS 4.2.4 - HTTP/2 CRLF Header Injection Lab. Educational security lab demonstrating CR/LF header validation." />
+  <title>{% block title %}ASVS 4.2.4 - CRLF Header Injection Lab{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="mode-{{ mode }}">
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-brand">
+      <span class="brand-badge">ASVS</span>
+      <span class="brand-control">4.2.4</span>
+      <span class="brand-sep">|</span>
+      <span class="brand-title">CRLF Header Injection Lab</span>
+    </div>
+    <div class="navbar-meta">
+      <span class="meta-chapter">V4.2 HTTP Message Structure</span>
+      <span class="meta-level level-3">Level 3</span>
+      {% if mode == 'secure' %}
+      <span class="mode-badge mode-secure">🔒 SECURE</span>
+      {% else %}
+      <span class="mode-badge mode-vulnerable">⚠️ VULNERABLE</span>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main id="main-content" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-asvs">
+        <strong>OWASP ASVS 4.2.4</strong> — V4.2 HTTP Message Structure Validation
+      </div>
+      <div class="footer-rfcs">
+        <span>RFC 9113 §8.2.1 (HTTP/2)</span>
+        <span class="footer-dot">·</span>
+        <span>RFC 9114 §4.2 (HTTP/3)</span>
+        <span class="footer-dot">·</span>
+        <span>RFC 7230 §3.2.6 (HTTP/1.1)</span>
+      </div>
+      <div class="footer-disclaimer">
+        Educational Security Lab — For Learning Purposes Only
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

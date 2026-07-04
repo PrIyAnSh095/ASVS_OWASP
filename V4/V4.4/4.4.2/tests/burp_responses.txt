@@ -1,0 +1,12 @@
+--- SECURE APPLICATION RESPONSE ---
+HTTP/1.1 400 BAD REQUEST
+Content-Type: text/plain
+Content-Length: 43
+
+The client is using an unsupported protocol.
+
+--- VULNERABLE APPLICATION RESPONSE ---
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=

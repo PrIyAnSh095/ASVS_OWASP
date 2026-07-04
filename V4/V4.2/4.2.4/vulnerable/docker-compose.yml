@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  vulnerable-app:
+    build: .
+    container_name: asvs-4.2.4-vulnerable
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=production
+      - APP_MODE=vulnerable
+    restart: unless-stopped
+    networks:
+      - asvs-network
+
+networks:
+  asvs-network:
+    driver: bridge

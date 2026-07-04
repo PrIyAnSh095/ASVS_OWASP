@@ -1,0 +1,13 @@
+﻿# Normal response (secure)
+Generate type=normal
+
+# JSON response (secure)
+Generate type=json
+
+# HTML response (secure)
+Generate type=html
+
+# Truncated response (vulnerable)
+Generate type=truncated
+
+# These payloads test whether Content-Length is correctly calculated.

@@ -1,0 +1,23 @@
+# Test 1: Secure App - Normal Request
+curl -X POST http://localhost:5000/ \
+  -d "uri=/valid" \
+  -d "cookie=session=123" \
+  -d "auth=Bearer valid"
+
+# Test 2: Secure App - Oversized Header
+PAYLOAD=$(python3 -c "print('A' * 5000)")
+curl -X POST http://localhost:5000/ \
+  -d "uri=/valid" \
+  -d "cookie=session=123" \
+  -d "auth=$PAYLOAD"
+
+# Test 3: Vulnerable App - Normal Request
+curl -X POST http://localhost:5000/ \
+  -d "uri=/valid" \
+  -d "cookie=session=123" \
+  -d "auth=Bearer valid"
+
+# Test 4: Vulnerable App - Oversized URI
+PAYLOAD_URI=$(python3 -c "print('/api/' + 'A' * 10000)")
+curl -X POST http://localhost:5000/ \
+  -d "uri=$PAYLOAD_URI"

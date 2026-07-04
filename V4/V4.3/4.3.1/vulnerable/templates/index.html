@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <h2>Vulnerable GraphQL API</h2>
+    <p>This implementation does NOT enforce any limits. Expensive, deeply nested queries will be fully executed, leading to resource exhaustion.</p>
+    
+    <div class="graphql-playground">
+        <div class="editor-section">
+            <label for="query">GraphQL Query:</label>
+            <textarea id="query" rows="15">
+{
+  users {
+    friends {
+      friends {
+        friends {
+          friends {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+            </textarea>
+            <button id="executeBtn">Execute Query</button>
+        </div>
+        <div class="result-section">
+            <h3>Response:</h3>
+            <div id="indicators">
+                <span id="statusIndicator">Status: N/A</span>
+            </div>
+            <pre id="responseViewer">{}</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

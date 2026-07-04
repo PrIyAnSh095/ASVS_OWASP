@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <h2>Secure GraphQL API</h2>
+    <p>This implementation enforces query depth limits, cost analysis, and limits on returned objects to prevent DoS attacks.</p>
+    
+    <div class="graphql-playground">
+        <div class="editor-section">
+            <label for="query">GraphQL Query:</label>
+            <textarea id="query" rows="15">
+{
+  users {
+    name
+    posts {
+      title
+      comments {
+        text
+        author {
+          name
+        }
+      }
+    }
+  }
+}
+            </textarea>
+            <button id="executeBtn">Execute Query</button>
+        </div>
+        <div class="result-section">
+            <h3>Response:</h3>
+            <div id="indicators">
+                <span id="statusIndicator">Status: N/A</span> | 
+                <span id="depthIndicator">Depth: N/A</span> |
+                <span id="costIndicator">Cost: N/A</span>
+            </div>
+            <pre id="responseViewer">{}</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+--- SECURE APPLICATION RESPONSE ---
+HTTP/1.1 413 REQUEST ENTITY TOO LARGE
+Content-Type: text/html; charset=utf-8
+Content-Length: [length]
+Connection: close
+
+[...HTML Response containing "File exceeds the maximum allowed size of 1 MB."...]

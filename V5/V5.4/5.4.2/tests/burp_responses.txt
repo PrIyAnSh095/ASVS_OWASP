@@ -1,0 +1,19 @@
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=normal.pdf
+Connection: close
+
+===
+
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=report 2025".pdf
+Connection: close
+
+===
+
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=test
+X-Test: Injected
+Connection: close

@@ -1,0 +1,59 @@
+﻿{% extends "layout.html" %}
+
+{% block content %}
+  <section class="panel">
+    <h2>Message Signing Dashboard</h2>
+    <p>Sign the request with HMAC-SHA256 and send it to the server. Tamper with the payload to see secure verification fail.</p>
+  </section>
+
+  <section class="panel form-panel">
+    <div class="form-row">
+      <label for="endpoint">Endpoint</label>
+      <select id="endpoint">
+        <option value="/transfer">/transfer</option>
+        <option value="/payment">/payment</option>
+        <option value="/approve">/approve</option>
+        <option value="/admin/action">/admin/action</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="secret-message">Secret Message</label>
+      <input id="secret-message" type="text" value="Confirm transfer" />
+    </div>
+    <div class="form-row">
+      <label for="amount">Amount</label>
+      <input id="amount" type="number" value="100" />
+    </div>
+    <div class="form-row">
+      <label for="recipient">Recipient</label>
+      <input id="recipient" type="text" value="recipient-123" />
+    </div>
+    <div class="form-row">
+      <label for="signature">Generated Signature</label>
+      <textarea id="signature" readonly rows="2"></textarea>
+    </div>
+    <div class="buttons-row">
+      <button id="generate-button" type="button">Generate Signature</button>
+      <button id="tamper-button" type="button">Tamper with Payload</button>
+      <button id="send-button" type="button">Send Request</button>
+    </div>
+  </section>
+
+  <section class="result-panel">
+    <div class="result-row"><span>Status Code</span><span id="status-code">-</span></div>
+    <div class="result-row"><span>Signature</span><span id="display-signature">-</span></div>
+    <div class="result-row"><span>Request Body</span><span id="request-body">-</span></div>
+    <div class="result-row"><span>Verification Result</span><span id="verification-result">-</span></div>
+    <div class="result-row"><span>Result</span><span id="result">-</span></div>
+  </section>
+
+  <section class="response-panel">
+    <h3>Response Body</h3>
+    <pre id="response-body">-</pre>
+  </section>
+
+  <section class="instructions">
+    <h3>Explanation</h3>
+    <p id="explanation">Use signature generation before sending. Tamper with the request to observe secure validation failure or vulnerable processing success.</p>
+  </section>
+{% endblock %}

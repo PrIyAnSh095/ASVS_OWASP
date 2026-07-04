@@ -1,0 +1,7 @@
+# Payload Generation for DoS Testing (Linux/macOS)
+
+# Small file for count testing
+echo "Small payload" > small.txt
+
+# 150KB file to instantly bust the 100KB secure quota
+dd if=/dev/zero of=oversized.txt bs=1K count=150

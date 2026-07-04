@@ -1,0 +1,4 @@
+# Full Schema Introspection
+curl -X POST http://localhost:5000/graphql \
+-H "Content-Type: application/json" \
+-d '{"query": "query { __schema { types { name fields { name type { name } } } } }"}'

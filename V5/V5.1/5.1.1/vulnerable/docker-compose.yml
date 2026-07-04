@@ -1,0 +1,6 @@
+version: '3.8'
+services:
+  vulnerable-upload-511:
+    build: .
+    ports:
+      - "5000:5000"

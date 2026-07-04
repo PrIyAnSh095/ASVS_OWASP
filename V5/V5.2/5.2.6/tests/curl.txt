@@ -1,0 +1,1 @@
+curl -F 'file=@assets/sample-files/10000x10000.png' http://localhost:5000/upload

@@ -1,0 +1,19 @@
+﻿# curl commands for ASVS 4.1.2
+
+# Secure lab
+curl -i http://localhost:5000/
+
+curl -i -X POST http://localhost:5000/api/login -H 'Content-Type: application/json' -d '{"username":"student"}'
+
+curl -i http://localhost:5000/api/profile
+
+curl -i http://localhost:5000/api/data
+
+# Vulnerable lab
+curl -i http://localhost:5001/
+
+curl -i -X POST http://localhost:5001/api/login -H 'Content-Type: application/json' -d '{"username":"student"}'
+
+curl -i http://localhost:5001/api/profile
+
+curl -i http://localhost:5001/api/data

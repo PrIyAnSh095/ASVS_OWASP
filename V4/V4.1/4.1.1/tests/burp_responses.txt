@@ -1,0 +1,13 @@
+﻿# Expected response headers for secure lab
+Content-Type: text/html; charset=UTF-8
+Content-Type: application/json; charset=UTF-8
+Content-Type: text/html; charset=UTF-8
+Content-Type: application/xml; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8
+
+# Expected response headers for vulnerable lab
+Content-Type: text/plain
+Content-Type: text/html; charset=UTF-8
+Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain

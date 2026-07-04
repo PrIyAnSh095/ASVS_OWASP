@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  secure:
+    build:
+      context: ./secure
+      dockerfile: Dockerfile
+    container_name: asvs-4-2-3-secure
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./secure:/app
+    networks:
+      - asvs-4-2-3-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  vulnerable:
+    build:
+      context: ./vulnerable
+      dockerfile: Dockerfile
+    container_name: asvs-4-2-3-vulnerable
+    ports:
+      - "8001:8001"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./vulnerable:/app
+    networks:
+      - asvs-4-2-3-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  asvs-4-2-3-network:
+    driver: bridge

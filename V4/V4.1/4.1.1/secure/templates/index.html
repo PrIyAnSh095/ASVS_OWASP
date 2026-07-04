@@ -1,0 +1,32 @@
+﻿{% extends "layout.html" %}
+
+{% block content %}
+  <section class="panel">
+    <h2>Content-Type Verification</h2>
+    <p>Click an endpoint button to request the response and inspect headers.</p>
+  </section>
+
+  <section class="controls">
+    <button data-endpoint="/json">JSON</button>
+    <button data-endpoint="/html">HTML</button>
+    <button data-endpoint="/xml">XML</button>
+    <button data-endpoint="/text">Plain Text</button>
+  </section>
+
+  <section class="result-panel">
+    <div class="result-row"><span>Status</span><span id="status">-</span></div>
+    <div class="result-row"><span>Content-Type</span><span id="contentType">-</span></div>
+    <div class="result-row"><span>Charset</span><span id="charset">-</span></div>
+    <div class="result-row"><span>Location</span><span id="location">-</span></div>
+    <div class="result-row result-full"><span>Response Body</span><pre id="body">-</pre></div>
+  </section>
+
+  <section class="instructions">
+    <h3>Instructions</h3>
+    <ol>
+      <li>Click a button to send a request to the selected endpoint.</li>
+      <li>Inspect the HTTP status and Content-Type values.</li>
+      <li>Observe whether the MIME type and charset match the response body.</li>
+    </ol>
+  </section>
+{% endblock %}

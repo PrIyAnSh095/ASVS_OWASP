@@ -1,0 +1,466 @@
+# ASVS 4.2.3 - Expected Burp Suite Responses
+
+## Test 1: Health Check Response (Both Secure and Vulnerable)
+
+HTTP/2 200 OK
+Content-Type: application/json
+Content-Length: 17
+
+{"status": "ok"}
+
+---
+
+## Test 2: Valid Request Response (Secure - Port 8000)
+
+HTTP/2 200 OK
+Content-Type: application/json
+Content-Length: 285
+
+{
+  "status": "PASS",
+  "message": "Request accepted - compliant with ASVS 4.2.3",
+  "asvs_control": "4.2.3",
+  "protocol": "HTTP/2",
+  "request_data": {
+    "data": "test"
+  },
+  "forbidden_headers_found": [],
+  "explanation": "No forbidden connection-specific headers were present in this HTTP/2 request..."
+}
+
+---
+
+## Test 3: Transfer-Encoding Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+Content-Type: application/json
+Content-Length: 245
+
+{
+  "status": "FAIL",
+  "message": "HTTP/2 and HTTP/3 must not contain connection-specific headers",
+  "asvs_control": "4.2.3",
+  "protocol": "HTTP/2 or HTTP/3",
+  "forbidden_headers_found": ["Transfer-Encoding"],
+  "reason": "RFC 7540 forbids connection-specific headers in HTTP/2 to prevent response splitting and header injection attacks"
+}
+
+---
+
+## Test 3: Transfer-Encoding Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+Content-Type: application/json
+Content-Length: 520
+
+{
+  "status": "ACCEPTED",
+  "message": "Request accepted without validation - VULNERABLE",
+  "asvs_control": "4.2.3",
+  "compliance": "FAIL",
+  "protocol": "HTTP/2",
+  "request_data": {
+    "data": "test"
+  },
+  "all_received_headers": {
+    "Host": "localhost:8001",
+    "Content-Type": "application/json",
+    "Content-Length": "17",
+    "Transfer-Encoding": "chunked"
+  },
+  "forwarded_headers": {
+    "Host": "localhost:8001",
+    "Content-Type": "application/json",
+    "Content-Length": "17",
+    "Transfer-Encoding": "chunked"
+  },
+  "vulnerability_explanation": "This application accepts connection-specific headers without validation..."
+}
+
+---
+
+## Test 4: Connection Header Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+Content-Type: application/json
+
+{
+  "status": "FAIL",
+  "message": "HTTP/2 and HTTP/3 must not contain connection-specific headers",
+  "forbidden_headers_found": ["Connection"],
+  "asvs_control": "4.2.3"
+}
+
+---
+
+## Test 4: Connection Header Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+Content-Type: application/json
+
+{
+  "status": "ACCEPTED",
+  "message": "Request accepted without validation - VULNERABLE",
+  "asvs_control": "4.2.3",
+  "compliance": "FAIL",
+  "all_received_headers": {
+    "Connection": "close"
+  }
+}
+
+---
+
+## Test 5: Keep-Alive Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+
+{
+  "status": "FAIL",
+  "forbidden_headers_found": ["Keep-Alive"],
+  "asvs_control": "4.2.3"
+}
+
+---
+
+## Test 5: Keep-Alive Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+
+{
+  "status": "ACCEPTED",
+  "dangerous_headers_found": 1,
+  "dangerous_headers_list": {
+    "Keep-Alive": "timeout=5, max=100"
+  }
+}
+
+---
+
+## Test 6: Upgrade Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+
+{
+  "status": "FAIL",
+  "forbidden_headers_found": ["Upgrade"],
+  "asvs_control": "4.2.3"
+}
+
+---
+
+## Test 6: Upgrade Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+
+{
+  "status": "ACCEPTED",
+  "dangerous_headers_list": {
+    "Upgrade": "h2c"
+  }
+}
+
+---
+
+## Test 7: Proxy-Connection Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+
+{
+  "status": "FAIL",
+  "forbidden_headers_found": ["Proxy-Connection"],
+  "asvs_control": "4.2.3"
+}
+
+---
+
+## Test 7: Proxy-Connection Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+
+{
+  "status": "ACCEPTED",
+  "dangerous_headers_list": {
+    "Proxy-Connection": "keep-alive"
+  }
+}
+
+---
+
+## Test 8: Trailer Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+
+{
+  "status": "FAIL",
+  "forbidden_headers_found": ["Trailer"],
+  "asvs_control": "4.2.3"
+}
+
+---
+
+## Test 8: Trailer Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+
+{
+  "status": "ACCEPTED",
+  "dangerous_headers_list": {
+    "Trailer": "X-Custom-Trailer"
+  }
+}
+
+---
+
+## Test 9: Multiple Forbidden Headers Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+Content-Type: application/json
+
+{
+  "status": "FAIL",
+  "message": "HTTP/2 and HTTP/3 must not contain connection-specific headers",
+  "forbidden_headers_found": [
+    "Transfer-Encoding",
+    "Connection",
+    "Keep-Alive"
+  ],
+  "asvs_control": "4.2.3"
+}
+
+---
+
+## Test 9: Multiple Forbidden Headers Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+Content-Type: application/json
+
+{
+  "status": "ACCEPTED",
+  "message": "Request accepted without validation - VULNERABLE",
+  "dangerous_headers_found": 3,
+  "dangerous_headers_list": {
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "Keep-Alive": "timeout=5"
+  },
+  "vulnerability_explanation": "This implementation identifies dangerous headers but does NOT reject them..."
+}
+
+---
+
+## Test 10: All Six Forbidden Headers Response (Secure - Port 8000)
+
+HTTP/2 400 Bad Request
+
+{
+  "status": "FAIL",
+  "message": "HTTP/2 and HTTP/3 must not contain connection-specific headers",
+  "forbidden_headers_found": [
+    "Transfer-Encoding",
+    "Connection",
+    "Keep-Alive",
+    "Upgrade",
+    "Proxy-Connection",
+    "Trailer"
+  ],
+  "asvs_control": "4.2.3",
+  "reason": "RFC 7540 forbids connection-specific headers in HTTP/2"
+}
+
+---
+
+## Test 10: All Six Forbidden Headers Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+
+{
+  "status": "ACCEPTED",
+  "dangerous_headers_found": 6,
+  "dangerous_headers_list": {
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "Keep-Alive": "timeout=5, max=100",
+    "Upgrade": "h2c",
+    "Proxy-Connection": "keep-alive",
+    "Trailer": "X-Custom-Trailer"
+  }
+}
+
+---
+
+## Test 11: Validate Endpoint Response (Secure - Port 8000)
+
+HTTP/2 200 OK
+
+{
+  "protocol": "HTTP/1.1",
+  "all_headers": {
+    "Host": "localhost:8000",
+    "Transfer-Encoding": "chunked"
+  },
+  "forbidden_headers_count": 1,
+  "forbidden_headers": {
+    "Transfer-Encoding": "chunked"
+  },
+  "is_compliant": false,
+  "asvs_control": "4.2.3",
+  "rfc": "RFC 7540 (HTTP/2)",
+  "explanation": {
+    "transfer_encoding": "HTTP/2 uses chunk encoding internally; this header should not be sent by clients"
+  }
+}
+
+---
+
+## Test 11: Validate Endpoint Response (Vulnerable - Port 8001)
+
+HTTP/2 200 OK
+
+{
+  "protocol": "HTTP/1.1",
+  "all_headers": {
+    "Host": "localhost:8001",
+    "Transfer-Encoding": "chunked"
+  },
+  "dangerous_headers_found": 1,
+  "dangerous_headers_list": {
+    "Transfer-Encoding": "chunked"
+  },
+  "asvs_control": "4.2.3",
+  "compliance": "FAIL - Headers that should be forbidden are accepted"
+}
+
+---
+
+## Test 12: Info Endpoint Response (Both Secure and Vulnerable - Similar)
+
+HTTP/2 200 OK
+Content-Type: application/json
+
+{
+  "asvs_control": "4.2.3",
+  "requirement": "Verify that the application does not send nor accept HTTP/2 or HTTP/3 messages with connection-specific header fields such as Transfer-Encoding to prevent response splitting and header injection attacks.",
+  "level": 3,
+  "forbidden_headers": [
+    "transfer-encoding",
+    "connection",
+    "keep-alive",
+    "upgrade",
+    "proxy-connection",
+    "trailer"
+  ],
+  "why_forbidden": {
+    "background": "HTTP/2 (RFC 7540) fundamentally changed how HTTP works...",
+    "transfer_encoding": "In HTTP/2, all messages are transmitted in frames with explicit length...",
+    "connection": "Explicitly tells the recipient to close the connection after this message...",
+    "keep_alive": "Negotiates connection persistence...",
+    "header_injection": "If an application accepts and forwards these headers without validation...",
+    "response_splitting": "By injecting CRLF sequences within these headers..."
+  },
+  "implementation": "The secure implementation validates all incoming HTTP/2 requests...",
+  "tests_included": [
+    "curl command with custom headers",
+    "Burp Suite intruder to test multiple headers",
+    "Direct header injection attempts",
+    "Protocol confusion scenarios"
+  ]
+}
+
+---
+
+## Response Pattern Summary
+
+### Secure (Port 8000) - Always Consistent Pattern
+
+Forbidden Headers Present:
+- HTTP Status: 400 Bad Request
+- status: "FAIL"
+- Contains: forbidden_headers_found array
+- Includes: RFC reference
+
+Valid Headers Only:
+- HTTP Status: 200 OK
+- status: "PASS"
+- forbidden_headers_found: [] (empty)
+
+### Vulnerable (Port 8001) - Always Consistent Pattern
+
+Any Request:
+- HTTP Status: 200 OK
+- status: "ACCEPTED"
+- compliance: "FAIL"
+- Contains: all_received_headers dict
+- Shows dangerous headers but accepts them
+
+---
+
+## Key Differences to Observe in Burp
+
+### Comparison Using Burp Comparer
+
+1. **Status Code Difference:**
+   - Secure: 400 for violations
+   - Vulnerable: 200 for everything
+
+2. **Response Body Difference:**
+   - Secure: Lists forbidden headers found, explains why
+   - Vulnerable: Lists all headers received, accepts violation
+
+3. **Message Clarity:**
+   - Secure: "FAIL - must not contain connection-specific headers"
+   - Vulnerable: "ACCEPTED - without validation - VULNERABLE"
+
+4. **asvs_control Field:**
+   - Both include "4.2.3"
+   - Secure response indicates compliance success
+   - Vulnerable response indicates compliance failure
+
+---
+
+## Response Timing
+
+Expected response times:
+
+- Secure (with validation): 10-50ms
+- Vulnerable (no validation): 5-20ms
+
+Difference is minimal (<5ms overhead for validation)
+
+---
+
+## Error Handling Responses
+
+### Miscellaneous Error Response
+
+HTTP/2 500 Internal Server Error
+
+{
+  "status": "ERROR",
+  "message": "Exception message here",
+  "asvs_control": "4.2.3"
+}
+
+This should be rare if applications are functioning correctly.
+
+---
+
+## Notes for Burp Testing
+
+1. **Status Code Analysis:**
+   - Count 400s on secure (should equal number of violations tested)
+   - Count 200s on vulnerable (should be same as total requests)
+
+2. **Response Content Analysis:**
+   - Use Text search for "FAIL" on secure
+   - Use Text search for "ACCEPTED" on vulnerable
+
+3. **Request-Response Pairing:**
+   - Save side-by-side comparisons
+   - Document exact differences
+
+4. **Volume Testing:**
+   - Intruder can send 6x6 = 36 combinations
+   - Secure: All should be 400
+   - Vulnerable: All should be 200
+
+---

@@ -1,0 +1,4 @@
+../../etc/passwd
+../secret.txt
+report.pdf
+invoice.pdf

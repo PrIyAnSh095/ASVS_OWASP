@@ -1,0 +1,14 @@
+# Intercepting and modifying Content-Length manually is rarely effective because 
+# frameworks parse the actual stream. Instead, use massive payloads.
+
+POST /upload HTTP/1.1
+Host: localhost:5000
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Length: 5000000
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: text/plain
+
+[... 5 Megabytes of 'A' characters ...]
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

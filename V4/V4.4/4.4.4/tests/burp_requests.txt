@@ -1,0 +1,8 @@
+# 1. Unauthenticated Token Request (Should Fail in Secure App)
+GET /api/ws-token HTTP/1.1
+Host: localhost:5000
+
+# 2. Authenticated Token Request (Should Pass in Secure App)
+GET /api/ws-token HTTP/1.1
+Host: localhost:5000
+Cookie: session=eyJ1c2VyIjoiYWRtaW4ifQ.Yxz...

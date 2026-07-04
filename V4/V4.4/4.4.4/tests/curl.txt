@@ -1,0 +1,8 @@
+# Step 1: Ensure unauthenticated users are blocked
+curl -s http://localhost:5000/api/ws-token
+
+# Step 2: Login and get session cookie
+curl -s -c cookies.txt -X POST -d "username=admin&password=password" http://localhost:5000/login
+
+# Step 3: Use session cookie to get a valid, short-lived WS token
+curl -s -b cookies.txt http://localhost:5000/api/ws-token

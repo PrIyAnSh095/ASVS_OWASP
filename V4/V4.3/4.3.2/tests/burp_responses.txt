@@ -1,0 +1,25 @@
+--- SECURE APPLICATION RESPONSE ---
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+
+{
+  "errors": [
+    {
+      "message": "GraphQL introspection is not allowed in production."
+    }
+  ]
+}
+
+--- VULNERABLE APPLICATION RESPONSE ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "data": {
+    "__schema": {
+      "types": [
+         // ... comprehensive schema dump ...
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+--- SECURE APPLICATION RESPONSE (Unauthenticated /api/ws-token) ---
+HTTP/1.1 401 UNAUTHORIZED
+Content-Type: application/json
+
+{"error":"Unauthorized. Please login over HTTP first."}
+
+--- VULNERABLE APPLICATION RESPONSE (Unauthenticated /api/ws-token) ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"token":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}

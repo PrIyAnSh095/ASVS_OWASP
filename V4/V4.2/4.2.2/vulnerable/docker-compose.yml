@@ -1,0 +1,7 @@
+﻿version: '3.8'
+services:
+  vulnerable:
+    build: .
+    ports:
+      - "5001:5001"
+    env_file: .env

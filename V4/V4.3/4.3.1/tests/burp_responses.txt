@@ -1,0 +1,27 @@
+--- SECURE APPLICATION RESPONSE ---
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+
+{
+  "errors": [
+    {
+      "message": "Query exceeds maximum allowed depth of 3."
+    }
+  ]
+}
+
+--- VULNERABLE APPLICATION RESPONSE ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "data": {
+    "users": [
+      {
+        "friends": [
+           // ... massive nested JSON payload continuing for thousands of lines
+        ]
+      }
+    ]
+  }
+}

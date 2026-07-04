@@ -1,0 +1,288 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Information Section -->
+    <section id="info-section" class="section info-section">
+        <h2>Control Information</h2>
+        <div class="info-card">
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>ASVS Control:</strong> 4.2.3
+                </div>
+                <div class="info-item">
+                    <strong>Level:</strong> 3 (Comprehensive)
+                </div>
+                <div class="info-item">
+                    <strong>Category:</strong> HTTP Message Structure Validation
+                </div>
+                <div class="info-item">
+                    <strong>Implementation:</strong> SECURE (PASS)
+                </div>
+            </div>
+
+            <h3>Requirement</h3>
+            <p class="requirement">
+                Verify that the application does not send nor accept HTTP/2 or HTTP/3 messages 
+                with connection-specific header fields such as Transfer-Encoding to prevent 
+                response splitting and header injection attacks.
+            </p>
+
+            <h3>Why This Matters</h3>
+            <div class="explanation-box">
+                <p>
+                    <strong>HTTP/2 Architecture:</strong> HTTP/2 fundamentally changed HTTP. 
+                    Instead of one TCP connection per request/response, HTTP/2 multiplexes multiple 
+                    logical streams over a single connection. This makes connection-specific headers 
+                    meaningless and dangerous.
+                </p>
+                <p>
+                    <strong>Forbidden Headers (RFC 7540):</strong>
+                </p>
+                <ul>
+                    <li><code>Transfer-Encoding</code> - HTTP/2 uses frame-level length, not chunking</li>
+                    <li><code>Connection</code> - Connection state managed by GOAWAY frames</li>
+                    <li><code>Keep-Alive</code> - HTTP/2 connections are persistent by design</li>
+                    <li><code>Upgrade</code> - Protocol upgrade negotiated differently</li>
+                    <li><code>Proxy-Connection</code> - Non-standard; obsolete in HTTP/2</li>
+                    <li><code>Trailer</code> - Trailers handled differently in HTTP/2</li>
+                </ul>
+
+                <p>
+                    <strong>Attack Vectors:</strong>
+                </p>
+                <ul>
+                    <li><strong>Header Injection:</strong> Inject CRLF sequences to add arbitrary headers</li>
+                    <li><strong>Response Splitting:</strong> Split response and inject attacker content</li>
+                    <li><strong>Request Smuggling:</strong> Confuse different protocol layers about message boundaries</li>
+                    <li><strong>Cache Poisoning:</strong> Inject headers used in cache keys</li>
+                    <li><strong>Protocol Confusion:</strong> Downgrade from HTTP/2 or cause parsing errors</li>
+                </ul>
+            </div>
+
+            <h3>Relevant Standards</h3>
+            <ul>
+                <li><a href="https://tools.ietf.org/html/rfc7540#section-8.1.2" target="_blank">RFC 7540 Section 8.1.2</a> - HTTP/2 Specification</li>
+                <li><a href="https://tools.ietf.org/html/rfc3986" target="_blank">RFC 3986</a> - URI Generic Syntax</li>
+                <li><a href="https://cwe.mitre.org/data/definitions/444.html" target="_blank">CWE-444</a> - Inconsistent Interpretation of HTTP Requests</li>
+                <li><a href="https://cwe.mitre.org/data/definitions/113.html" target="_blank">CWE-113</a> - Improper Neutralization of CRLF Sequences</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Test Section -->
+    <section id="test-section" class="section test-section">
+        <h2>Interactive Test</h2>
+        <div class="test-card">
+            <h3>Test Request Configuration</h3>
+            <form id="testForm" class="test-form">
+                <div class="form-group">
+                    <label for="protocol">Protocol Version:</label>
+                    <select id="protocol" name="protocol">
+                        <option value="http1">HTTP/1.1</option>
+                        <option value="http2" selected>HTTP/2</option>
+                        <option value="http3">HTTP/3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="headers">Custom Headers (Name: Value):</label>
+                    <div id="headersList" class="headers-list">
+                        <div class="header-input-group">
+                            <input type="text" class="header-name" placeholder="Header Name" value="">
+                            <input type="text" class="header-value" placeholder="Header Value" value="">
+                            <button type="button" class="btn-remove" onclick="removeHeader(this)">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="addHeader()">Add Header</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="body">Request Body:</label>
+                    <textarea id="body" name="body" placeholder="Optional JSON body" rows="4"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">Send Request</button>
+            </form>
+
+            <div id="responseSection" class="response-section" style="display: none;">
+                <h4>Response</h4>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('response-pretty', this)">Pretty</button>
+                    <button class="tab-btn" onclick="switchTab('response-raw', this)">Raw</button>
+                </div>
+                <div id="response-pretty" class="tab-content active">
+                    <pre id="responsePretty" class="response-display"></pre>
+                </div>
+                <div id="response-raw" class="tab-content">
+                    <pre id="responseRaw" class="response-display"></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manual Testing Section -->
+    <section id="manual-section" class="section manual-section">
+        <h2>Manual Testing Guide</h2>
+
+        <div class="guide-card">
+            <h3>Browser DevTools</h3>
+            <ol>
+                <li>Open Browser Developer Tools (F12)</li>
+                <li>Go to Network tab</li>
+                <li>Try to send custom headers (limited in browsers)</li>
+                <li>Note: Browsers restrict custom header injection for security</li>
+                <li>Use Burp Suite or curl for full testing</li>
+            </ol>
+        </div>
+
+        <div class="guide-card">
+            <h3>curl Commands</h3>
+            <p>Test with curl (requires HTTP/2 support):</p>
+            <pre><code>
+# Test with Transfer-Encoding header (should be rejected)
+curl -H "Transfer-Encoding: chunked" \
+  https://localhost:8000/api/test
+
+# Test with Connection header (should be rejected)
+curl -H "Connection: close" \
+  https://localhost:8000/api/test
+
+# Test with multiple forbidden headers
+curl -H "Transfer-Encoding: chunked" \
+  -H "Connection: close" \
+  -H "Keep-Alive: timeout=5" \
+  https://localhost:8000/api/test
+
+# Valid request (should succeed)
+curl -H "Accept: application/json" \
+  https://localhost:8000/api/test
+            </code></pre>
+        </div>
+
+        <div class="guide-card">
+            <h3>Burp Suite Testing</h3>
+            <ol>
+                <li>Start Burp Suite and configure browser proxy</li>
+                <li>Navigate to any endpoint</li>
+                <li>Send to Repeater</li>
+                <li>Manually add forbidden headers:
+                    <ul>
+                        <li>Transfer-Encoding: chunked</li>
+                        <li>Connection: close</li>
+                        <li>Keep-Alive: timeout=5</li>
+                        <li>Upgrade: h2c</li>
+                    </ul>
+                </li>
+                <li>Observe HTTP 400 rejection</li>
+                <li>Compare with vulnerable version on port 8001</li>
+            </ol>
+        </div>
+
+        <div class="guide-card">
+            <h3>Expected Results (Secure Version - Port 8000)</h3>
+            <div class="success-box">
+                <p><strong>✓ Request without forbidden headers:</strong></p>
+                <ul>
+                    <li>HTTP 200 OK</li>
+                    <li>Response includes: "status": "PASS"</li>
+                    <li>Message: "Request accepted - compliant with ASVS 4.2.3"</li>
+                </ul>
+
+                <p><strong>✗ Request with forbidden headers:</strong></p>
+                <ul>
+                    <li>HTTP 400 Bad Request</li>
+                    <li>Response includes: "status": "FAIL"</li>
+                    <li>Message: "HTTP/2 and HTTP/3 must not contain connection-specific headers"</li>
+                    <li>Lists which headers triggered rejection</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="section comparison-section">
+        <h2>Secure vs Vulnerable Comparison</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Secure (Port 8000)</th>
+                    <th>Vulnerable (Port 8001)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Header Validation</strong></td>
+                    <td class="pass">✓ Validates all headers</td>
+                    <td class="fail">✗ No validation</td>
+                </tr>
+                <tr>
+                    <td><strong>Forbidden Headers</strong></td>
+                    <td class="pass">✓ Rejects all 6 forbidden headers</td>
+                    <td class="fail">✗ Accepts all headers</td>
+                </tr>
+                <tr>
+                    <td><strong>Transfer-Encoding</strong></td>
+                    <td class="pass">✓ Rejected</td>
+                    <td class="fail">✗ Accepted</td>
+                </tr>
+                <tr>
+                    <td><strong>Connection</strong></td>
+                    <td class="pass">✓ Rejected</td>
+                    <td class="fail">✗ Accepted</td>
+                </tr>
+                <tr>
+                    <td><strong>Keep-Alive</strong></td>
+                    <td class="pass">✓ Rejected</td>
+                    <td class="fail">✗ Accepted</td>
+                </tr>
+                <tr>
+                    <td><strong>Protocol Compliance</strong></td>
+                    <td class="pass">✓ RFC 7540 Compliant</td>
+                    <td class="fail">✗ Non-compliant</td>
+                </tr>
+                <tr>
+                    <td><strong>HTTP Status on Violation</strong></td>
+                    <td class="pass">400 Bad Request</td>
+                    <td class="fail">200 OK (Accepts violation)</td>
+                </tr>
+                <tr>
+                    <td><strong>ASVS 4.2.3 Compliance</strong></td>
+                    <td class="pass">✓ PASS</td>
+                    <td class="fail">✗ FAIL</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Learning Outcomes Section -->
+    <section class="section learning-section">
+        <h2>Learning Outcomes</h2>
+        <div class="learning-card">
+            <h3>After this lab, you should understand:</h3>
+            <ul>
+                <li>Why HTTP/2 forbids connection-specific headers</li>
+                <li>How HTTP/2 multiplexing makes these headers dangerous</li>
+                <li>Attack vectors enabled by header injection</li>
+                <li>Implementation of proper HTTP/2 header validation</li>
+                <li>Difference between HTTP/1.1 and HTTP/2 concepts</li>
+                <li>How to test for this vulnerability</li>
+                <li>Real-world impact of protocol confusion attacks</li>
+            </ul>
+        </div>
+
+        <div class="learning-card">
+            <h3>Challenge Tasks:</h3>
+            <ol>
+                <li>Send all 6 forbidden headers to the secure version and observe rejection</li>
+                <li>Send the same headers to the vulnerable version and observe acceptance</li>
+                <li>Craft a header injection payload with CRLF sequences</li>
+                <li>Explain why each header is forbidden in HTTP/2</li>
+                <li>Fix the vulnerable app to become compliant</li>
+                <li>Test your fix with manual requests</li>
+            </ol>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+# ASVS 5.4.2 Test Payloads
+
+This file lists testing payloads for manual and automated verification of Content-Disposition vulnerabilities.
+
+## 1. Normal/Acceptable Payloads
+These payloads verify standard functional compatibility:
+- `normal.pdf`
+- `report 2025.pdf`
+
+## 2. Special Characters and Injection Vectors
+These payloads are designed to test boundary parsing, quoting, and injection handling:
+- `invoice".pdf`
+- `test%0d%0aX-Test:Injected`
+- `filename\r\nX-Test:Injected`
+- `report_✓_résumé.pdf`
+- `filename;+extension=.txt`
+- `..\..\etc\passwd` (Note: Path traversal is blocked, but tests filename sanitization as well)

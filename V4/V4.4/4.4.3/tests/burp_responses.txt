@@ -1,0 +1,7 @@
+--- SECURE APPLICATION RESPONSE (Invalid Token) ---
+44{"message":"Authentication required. Missing token."}
+# Followed immediately by connection close.
+
+--- VULNERABLE APPLICATION RESPONSE (No Token) ---
+40{"sid":"ab123x...","upgrades":[],"pingInterval":25000,"pingTimeout":5000}
+# Connection successfully established without authentication.

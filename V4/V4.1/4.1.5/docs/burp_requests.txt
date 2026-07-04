@@ -1,0 +1,13 @@
+﻿POST /transfer HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+X-Signature: <valid-signature>
+
+{"amount":100,"recipient":"recipient-123","message":"Confirm transfer"}
+
+POST /transfer HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+X-Signature: <valid-signature>
+
+{"amount":200,"recipient":"recipient-456","message":"Tampered"}

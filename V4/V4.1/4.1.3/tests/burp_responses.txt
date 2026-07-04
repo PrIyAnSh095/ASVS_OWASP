@@ -1,0 +1,7 @@
+﻿# Secure lab expected response
+HTTP/1.1 200 OK
+# Displayed values remain trusted and unchanged.
+
+# Vulnerable lab expected response
+HTTP/1.1 200 OK
+# Displayed values reflect spoofed header values.

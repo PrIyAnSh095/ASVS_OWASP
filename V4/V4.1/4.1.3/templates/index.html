@@ -1,0 +1,58 @@
+﻿{% extends "layout.html" %}
+
+{% block content %}
+  <section class="panel">
+    <h2>Trusted Proxy Header Dashboard</h2>
+    <p>Enter custom proxy headers and submit the form. Secure lab ignores spoofed headers; vulnerable lab reflects them.</p>
+  </section>
+
+  <section class="panel">
+    <form id="header-form" class="header-form">
+      <div class="form-row">
+        <label>X-Forwarded-For<input name="X-Forwarded-For" placeholder="127.0.0.1"></label>
+      </div>
+      <div class="form-row">
+        <label>X-Forwarded-Host<input name="X-Forwarded-Host" placeholder="attacker.example.com"></label>
+      </div>
+      <div class="form-row">
+        <label>X-Forwarded-Proto<input name="X-Forwarded-Proto" placeholder="https"></label>
+      </div>
+      <div class="form-row">
+        <label>X-Real-IP<input name="X-Real-IP" placeholder="10.0.0.1"></label>
+      </div>
+      <div class="form-row">
+        <label>X-User-ID<input name="X-User-ID" placeholder="admin"></label>
+      </div>
+      <button type="submit">Submit Headers</button>
+    </form>
+  </section>
+
+  <section class="result-panel">
+    <div class="result-row"><span>Status</span><span id="status">{{ result }}</span></div>
+    <div class="result-row"><span>Detected Client IP</span><span id="client-ip">{{ client_ip }}</span></div>
+    <div class="result-row"><span>Detected User ID</span><span id="user_id">{{ user_id }}</span></div>
+    <div class="result-row"><span>Host</span><span id="host">{{ host }}</span></div>
+    <div class="result-row"><span>Protocol</span><span id="proto">{{ proto }}</span></div>
+    <div class="result-row"><span>Real IP</span><span id="real_ip">{{ real_ip }}</span></div>
+  </section>
+
+  <section class="result-panel">
+    <h3>Request Headers</h3>
+    <div class="headers">
+      <div class="header-row"><span>X-Forwarded-For</span><span id="header-X-Forwarded-For">{{ headers['X-Forwarded-For'] or '-' }}</span></div>
+      <div class="header-row"><span>X-Forwarded-Host</span><span id="header-X-Forwarded-Host">{{ headers['X-Forwarded-Host'] or '-' }}</span></div>
+      <div class="header-row"><span>X-Forwarded-Proto</span><span id="header-X-Forwarded-Proto">{{ headers['X-Forwarded-Proto'] or '-' }}</span></div>
+      <div class="header-row"><span>X-Real-IP</span><span id="header-X-Real-IP">{{ headers['X-Real-IP'] or '-' }}</span></div>
+      <div class="header-row"><span>X-User-ID</span><span id="header-X-User-ID">{{ headers['X-User-ID'] or '-' }}</span></div>
+    </div>
+  </section>
+
+  <section class="instructions">
+    <h3>Instructions</h3>
+    <ol>
+      <li>Enter spoofed header values and submit.</li>
+      <li>The lab sends the values as actual HTTP headers.</li>
+      <li>Secure app should ignore spoofed headers; vulnerable app should reflect them.</li>
+    </ol>
+  </section>
+{% endblock %}

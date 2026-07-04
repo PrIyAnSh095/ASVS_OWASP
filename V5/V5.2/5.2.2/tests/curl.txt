@@ -1,0 +1,7 @@
+# Test 1: Fake Extension (Text masquerading as JPG)
+echo '<?php echo "Test"; ?>' > fake.jpg
+curl -F "file=@fake.jpg" http://localhost:5000/upload
+
+# Test 2: Text masquerading as PDF
+echo 'Just some text' > fake.pdf
+curl -F "file=@fake.pdf" http://localhost:5000/upload
