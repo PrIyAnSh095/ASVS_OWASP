@@ -1,7 +1,9 @@
 ﻿version: '3.8'
 services:
   vulnerable:
-    build: .
+    build:
+      context: ..
+      dockerfile: vulnerable/Dockerfile
     ports:
       - "5001:5001"
     env_file: .env

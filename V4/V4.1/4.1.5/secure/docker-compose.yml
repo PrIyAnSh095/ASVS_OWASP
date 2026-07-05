@@ -1,7 +1,9 @@
 ﻿version: '3.8'
 services:
   secure:
-    build: .
+    build:
+      context: ..
+      dockerfile: secure/Dockerfile
     container_name: asvs415_secure
     ports:
       - "5000:5000"

@@ -1,7 +1,9 @@
 ﻿version: '3.8'
 services:
   vulnerable:
-    build: .
+    build:
+      context: ..
+      dockerfile: vulnerable/Dockerfile
     container_name: asvs415_vulnerable
     ports:
       - "5001:5000"
