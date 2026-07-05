@@ -3,14 +3,12 @@ version: '3.8'
 services:
   vulnerable-app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: vulnerable/Dockerfile
     ports:
       - "5001:5001"
     environment:
       - FLASK_ENV=development
-    volumes:
-      - .:/app
 
 networks:
   default:

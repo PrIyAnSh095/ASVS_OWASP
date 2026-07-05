@@ -3,10 +3,14 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY vulnerable/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY vulnerable/ /app/vulnerable/
+COPY templates/ /app/templates/
+COPY static/ /app/static/
+
+WORKDIR /app/vulnerable
 
 # Create the uploads/sample-files directory and a sample file
 RUN mkdir -p static/files && \

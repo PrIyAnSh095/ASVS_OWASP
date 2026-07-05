@@ -3,14 +3,12 @@ version: '3.8'
 services:
   secure-app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: secure/Dockerfile
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-    volumes:
-      - .:/app
 
 networks:
   default:

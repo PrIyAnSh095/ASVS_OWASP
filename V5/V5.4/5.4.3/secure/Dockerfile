@@ -3,10 +3,14 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY secure/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY secure/ /app/secure/
+COPY templates/ /app/templates/
+COPY static/ /app/static/
+
+WORKDIR /app/secure
 
 # Create the uploads/quarantine/downloads directories
 RUN mkdir -p uploads quarantine downloads static/files
