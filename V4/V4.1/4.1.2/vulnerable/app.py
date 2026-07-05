@@ -20,7 +20,7 @@ def redirect_all_http_requests():
 
 @app.before_request
 def before_request():
-    if request.path in ['/', '/login', '/page']:
+    if request.path in ['/', '/login', '/page'] or request.path.startswith('/static/'):
         return None
     redirect_response = redirect_all_http_requests()
     if redirect_response:
