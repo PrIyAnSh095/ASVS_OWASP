@@ -8,4 +8,4 @@ COPY static/ /app/static/
 
 WORKDIR /app/secure
 EXPOSE 5000
-CMD ["python", "secure/app.py"]
+CMD ["python", "app.py"]

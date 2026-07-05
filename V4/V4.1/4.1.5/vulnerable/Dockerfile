@@ -8,4 +8,4 @@ COPY static/ /app/static/
 
 WORKDIR /app/vulnerable
 EXPOSE 5000
-CMD ["python", "vulnerable/app.py"]
+CMD ["python", "app.py"]
