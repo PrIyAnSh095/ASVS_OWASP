@@ -1,4 +1,4 @@
-﻿from flask import Flask, jsonify, redirect, request, render_template
+from flask import Flask, jsonify, redirect, request, render_template
 
 app = Flask(__name__)
 
@@ -40,17 +40,11 @@ def index():
 
 @app.route('/page')
 def page():
-    redirect_response = redirect_browser_to_https()
-    if redirect_response:
-        return redirect_response
     return render_template('page.html')
 
 
 @app.route('/login')
 def login():
-    redirect_response = redirect_browser_to_https()
-    if redirect_response:
-        return redirect_response
     return render_template('login.html')
 
 
