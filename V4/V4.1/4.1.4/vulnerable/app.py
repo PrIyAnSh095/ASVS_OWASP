@@ -1,4 +1,4 @@
-﻿from flask import Flask, jsonify, make_response, render_template, request
+from flask import Flask, jsonify, make_response, render_template, request
 
 # This vulnerable implementation accepts too many HTTP methods.
 # It intentionally exposes additional methods that should be blocked.

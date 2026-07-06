@@ -1,4 +1,4 @@
-﻿from flask import Flask, jsonify, make_response, render_template, request
+from flask import Flask, jsonify, make_response, render_template, request
 
 # Vulnerable implementation for ASVS 4.1.5
 # Accepts requests even when the X-Signature header is missing or invalid.

@@ -1,9 +1,10 @@
 FROM python:3.9-slim
 WORKDIR /app
-COPY requirements.txt .
+COPY secure/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-# Copy static files appropriately
-COPY ../static /static
-COPY ../templates /templates
+COPY secure/ /app/secure/
+COPY static/ /app/static/
+
+WORKDIR /app/secure
+EXPOSE 5000
 CMD ["python", "app.py"]

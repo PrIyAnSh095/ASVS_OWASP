@@ -1,6 +1,8 @@
 version: '3.8'
 services:
   secure-graphql-432:
-    build: .
+    build:
+      context: ..
+      dockerfile: secure/Dockerfile
     ports:
       - "5000:5000"

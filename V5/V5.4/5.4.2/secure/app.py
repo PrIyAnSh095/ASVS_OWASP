@@ -3,8 +3,6 @@ import re
 from urllib.parse import quote
 # pyrefly: ignore [missing-import]
 from flask import Flask, render_template, request, send_file, Response, abort
-# pyrefly: ignore [missing-import]
-from werkzeug.utils import safe_join
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
@@ -26,9 +24,11 @@ def download():
     # Locate actual source file to serve
     source_file = request.args.get('source') or request.form.get('source') or 'sample.pdf'
     
-    # 1. Path Traversal Mitigation: Safe join to ensure target is within FILES_DIR
-    target_path = safe_join(FILES_DIR, source_file)
-    if not target_path or not os.path.exists(target_path) or os.path.isdir(target_path):
+    # 1. Path Traversal Mitigation: Resolve real path and ensure it stays within FILES_DIR
+    target_path = os.path.realpath(os.path.join(FILES_DIR, source_file))
+    if not target_path.startswith(FILES_DIR + os.sep) and target_path != FILES_DIR:
+        abort(403, "Access denied: path traversal detected.")
+    if not os.path.exists(target_path) or os.path.isdir(target_path):
         abort(404, "Requested file not found or access denied.")
 
     # 2. Header Injection Mitigation (CRLF Mitigation):

@@ -1,1 +1,78 @@
-﻿
+{% extends "layout.html" %}
+
+{% block content %}
+  <section class="panel">
+    <h2>HTTP Method Enforcement Lab</h2>
+    <p>This lab demonstrates ASVS 4.1.4 — verifying that the application only accepts the HTTP methods it declares.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Defined Endpoint Policy</h2>
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #444;">Endpoint</th>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #444;">Allowed Methods</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for endpoint in endpoints %}
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #333;"><code>{{ endpoint }}</code></td>
+          <td style="padding:8px; border-bottom:1px solid #333;">{{ allowed_methods[endpoint] | join(', ') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Test an Endpoint</h2>
+    <div class="form-row">
+      <label for="ep-select">Endpoint</label>
+      <select id="ep-select">
+        {% for endpoint in endpoints %}
+        <option value="{{ endpoint }}">{{ endpoint }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="method-select">HTTP Method</label>
+      <select id="method-select">
+        <option>GET</option>
+        <option>POST</option>
+        <option>PUT</option>
+        <option>PATCH</option>
+        <option>DELETE</option>
+        <option>OPTIONS</option>
+        <option>TRACE</option>
+      </select>
+    </div>
+    <div class="buttons-row">
+      <button id="test-button" type="button">Send Request</button>
+    </div>
+  </section>
+
+  <section class="result-panel">
+    <div class="result-row"><span>HTTP Status</span><span id="status-code">-</span></div>
+    <div class="result-row"><span>Response</span><span id="response-body">-</span></div>
+  </section>
+
+  <script>
+    document.getElementById('test-button').addEventListener('click', function () {
+      var ep = document.getElementById('ep-select').value;
+      var method = document.getElementById('method-select').value;
+      fetch(ep, { method: method, headers: {'Content-Type': 'application/json'}, body: method !== 'GET' && method !== 'HEAD' ? '{}' : undefined })
+        .then(function(r) {
+          document.getElementById('status-code').textContent = r.status + ' ' + r.statusText;
+          return r.text();
+        })
+        .then(function(t) {
+          document.getElementById('response-body').textContent = t.substring(0, 200);
+        })
+        .catch(function(e) {
+          document.getElementById('response-body').textContent = 'Error: ' + e;
+        });
+    });
+  </script>
+{% endblock %}

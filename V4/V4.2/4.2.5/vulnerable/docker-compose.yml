@@ -1,7 +1,9 @@
 version: '3.8'
 services:
   vulnerable-app:
-    build: .
+    build:
+      context: ..
+      dockerfile: vulnerable/Dockerfile
     ports:
       - "5000:5000"
     environment:

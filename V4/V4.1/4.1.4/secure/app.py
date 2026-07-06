@@ -1,4 +1,4 @@
-﻿from flask import Flask, jsonify, make_response, render_template, request
+from flask import Flask, jsonify, make_response, render_template, request
 
 # This secure implementation intentionally limits the accepted HTTP methods.
 # Unnecessary HTTP methods increase attack surface and should be rejected.

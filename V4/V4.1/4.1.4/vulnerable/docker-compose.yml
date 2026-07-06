@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  vulnerable-methods-414:
+    build:
+      context: ..
+      dockerfile: vulnerable/Dockerfile
+    ports:
+      - "5001:5000"

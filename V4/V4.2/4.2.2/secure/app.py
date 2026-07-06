@@ -1,4 +1,4 @@
-﻿import json
+import json
 from flask import Flask, jsonify, render_template, request, Response
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')

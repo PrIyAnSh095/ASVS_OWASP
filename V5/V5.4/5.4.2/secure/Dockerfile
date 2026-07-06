@@ -12,11 +12,11 @@ COPY static/ /app/static/
 
 WORKDIR /app/secure
 
-# Create the uploads/sample-files directory and a sample file
+# Create the sample-files directory with test files
 RUN mkdir -p static/files && \
     echo "This is a sample PDF document for testing." > static/files/sample.pdf && \
     echo "This is a sample document with spaces in the filename." > "static/files/sample with spaces.pdf" && \
-    echo "This is a sample document with Unicode character checkmark." > "static/files/sample_✓.pdf"
+    echo "This is a sample document with unicode character checkmark." > "static/files/sample_checkmark.pdf"
 
 EXPOSE 5000
 

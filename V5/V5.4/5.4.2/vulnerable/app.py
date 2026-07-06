@@ -1,8 +1,6 @@
 import os
 # pyrefly: ignore [missing-import]
 from flask import Flask, render_template, request, send_file, Response, abort
-# pyrefly: ignore [missing-import]
-from werkzeug.utils import safe_join
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
@@ -24,9 +22,11 @@ def download():
     # Locate actual source file to serve
     source_file = request.args.get('source') or request.form.get('source') or 'sample.pdf'
     
-    # Locate target file path using a naive safe_join (or direct join since path traversal is a separate control)
-    target_path = safe_join(FILES_DIR, source_file)
-    if not target_path or not os.path.exists(target_path) or os.path.isdir(target_path):
+    # Locate target file path - use realpath containment check
+    target_path = os.path.realpath(os.path.join(FILES_DIR, source_file))
+    if not target_path.startswith(FILES_DIR + os.sep) and target_path != FILES_DIR:
+        abort(403, "Access denied.")
+    if not os.path.exists(target_path) or os.path.isdir(target_path):
         abort(404, "Requested file not found or access denied.")
 
     with open(target_path, 'rb') as f:

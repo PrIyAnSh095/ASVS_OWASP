@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  secure-methods-414:
+    build:
+      context: ..
+      dockerfile: secure/Dockerfile
+    ports:
+      - "5000:5000"
